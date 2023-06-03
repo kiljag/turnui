@@ -2,7 +2,7 @@ import { Chess, Piece } from 'chess.js';
 import { PieceMap, getPieceMap } from './piece';
 import { createSlice } from '@reduxjs/toolkit';
 
-type BoardState = "init" | "waiting" | "joining" | "playing" | "gameover" | "error";
+type BoardState = "init" | "waiting" | "creating" | "joining" | "playing" | "gameover" | "error";
 
 export interface ChessState {
     chess: Chess,
@@ -14,7 +14,7 @@ export interface ChessState {
     playerIsWhite: boolean,
     isPlayerTurn: boolean,
     playerHasWon: boolean,
-    error: string,
+    displayMessage: string,
 }
 
 let chess = new Chess();
@@ -30,7 +30,7 @@ const initialState: ChessState = {
     playerIsWhite: true,
     isPlayerTurn: false,
     playerHasWon: false,
-    error: '',
+    displayMessage: '',
 }
 
 const chessSlice = createSlice({
@@ -42,22 +42,42 @@ const chessSlice = createSlice({
             return initialState;
         },
 
+        reduceCreatingRoom: (state) => {
+            state.boardState = "creating";
+        },
+
+        reduceSetRoomId: (state, action) => {
+
+            // const payload = action.payload;
+            // const roomId = payload.roomId;
+            // state.roomId = "" + roomId;
+        },
+
         reduceJoiningRoom: (state) => {
             state.boardState = "joining";
-            state.roomId = "";
+        },
+
+        reduceWaiting: (state) => {
+            state.boardState = "waiting";
+        },
+
+        reduceError: (state, action) => {
+            let payload = action.payload;
+            state.boardState = 'error';
+            state.displayMessage = payload['message'];
         },
 
         // websocket responses
         reduceNewRoom: (state, action) => {
             const payload = action.payload;
             state.roomId = payload['roomId'];
+            state.boardState = 'creating';
         },
 
         reduceNewPlayer: (state, action) => {
             let payload = action.payload;
             state.playerId = payload['playerId'];
             state.playerIsWhite = (payload['color'] === 'w');
-            state.boardState = 'waiting';
         },
 
         reduceStartGame: (state, action) => {
@@ -86,20 +106,14 @@ const chessSlice = createSlice({
 
             } else if (payload['error']) {
                 state.boardState = 'error';
-                state.error = payload['message'];
+                state.displayMessage = payload['message'];
             }
         },
-
-        reduceError: (state, action) => {
-            let payload = action.payload;
-            state.boardState = 'error';
-            state.error = payload['message'];
-        }
     }
 });
 
 export const {
-    reduceClear, reduceJoiningRoom, reduceError,
+    reduceClear, reduceJoiningRoom, reduceCreatingRoom, reduceWaiting, reduceError, reduceSetRoomId,
     reduceNewRoom, reduceNewPlayer, reduceStartGame, reduceChessMove, reduceEndGame,
 } = chessSlice.actions;
 

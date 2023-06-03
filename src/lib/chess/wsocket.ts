@@ -4,10 +4,17 @@ import store from '../store';
 import {
     reduceNewRoom, reduceNewPlayer, reduceStartGame, reduceChessMove, reduceEndGame,
     reduceError,
+    reduceSetRoomId,
 } from './slice';
+
 
 function onclose(event: any) {
     console.log('connection closed');
+    store.dispatch(reduceError({
+        payload: {
+            message: "Connection Closed",
+        }
+    }));
 }
 
 function onmessage(event: any) {
@@ -40,7 +47,7 @@ function onmessage(event: any) {
                 let move = payload['move'];
                 let state = store.getState();
                 try {
-                    state.chess.move(move);
+                    let chessMove = state.chess.move(move);
                     store.dispatch(reduceChessMove(payload));
 
                 } catch (error) {
@@ -61,7 +68,12 @@ function onmessage(event: any) {
         }
 
     } catch (err) {
-        console.log('error reading message', event);
+        console.log('error reading message', err);
+        store.dispatch(reduceError({
+            payload: {
+                message: "Unknown Error occured"
+            }
+        }))
     }
 }
 
@@ -110,7 +122,7 @@ export async function createChessRoom() {
 
 export async function joinChessRoom(roomId: string) {
     try {
-        if (!wsocket) {
+        if (!wsocket || wsocket.readyState === wsocket.CLOSED) {
             await createConnection();
         }
         wsocket.send(JSON.stringify({

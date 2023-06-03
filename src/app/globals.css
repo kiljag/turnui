@@ -64,7 +64,7 @@ body {
   grid-template-columns: repeat(8, 80px);
   margin: 0 auto;
   margin-top: 20px;
-  background-image: url('../../assets/sprites/150.png');
+  background-image: url('../assets/sprites/150.png');
   background-size: 100%;
   border: 1px solid black;
   box-sizing: content-box;
@@ -82,61 +82,61 @@ body {
 }
 
 .piece-wp {
-  background-image: url('../../assets/sprites/wp.png');
+  background-image: url('../assets/sprites/wp.png');
   background-size: 100%;
 }
 
 .piece-wr {
-  background-image: url('../../assets/sprites/wr.png');
+  background-image: url('../assets/sprites/wr.png');
   background-size: 100%;
 }
 
 .piece-wn {
-  background-image: url('../../assets/sprites/wn.png');
+  background-image: url('../assets/sprites/wn.png');
   background-size: 100%;
 }
 
 .piece-wb {
-  background-image: url('../../assets/sprites/wb.png');
+  background-image: url('../assets/sprites/wb.png');
   background-size: 100%;
 }
 
 .piece-wq {
-  background-image: url('../../assets/sprites/wq.png');
+  background-image: url('../assets/sprites/wq.png');
   background-size: 100%;
 }
 
 .piece-wk {
-  background-image: url('../../assets/sprites/wk.png');
+  background-image: url('../assets/sprites/wk.png');
   background-size: 100%;
 }
 
 .piece-bp {
-  background-image: url('../../assets/sprites/bp.png');
+  background-image: url('../assets/sprites/bp.png');
   background-size: 100%;
 }
 
 .piece-br {
-  background-image: url('../../assets/sprites/br.png');
+  background-image: url('../assets/sprites/br.png');
   background-size: 100%;
 }
 
 .piece-bn {
-  background-image: url('../../assets/sprites/bn.png');
+  background-image: url('../assets/sprites/bn.png');
   background-size: 100%;
 }
 
 .piece-bb {
-  background-image: url('../../assets/sprites/bb.png');
+  background-image: url('../assets/sprites/bb.png');
   background-size: 100%;
 }
 
 .piece-bq {
-  background-image: url('../../assets/sprites/bq.png');
+  background-image: url('../assets/sprites/bq.png');
   background-size: 100%;
 }
 
 .piece-bk {
-  background-image: url('../../assets/sprites/bk.png');
+  background-image: url('../assets/sprites/bk.png');
   background-size: 100%;
 }

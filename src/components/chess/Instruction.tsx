@@ -1,13 +1,13 @@
 import { ChessState } from "@/lib/chess/slice";
 import { useDispatch, useSelector } from "react-redux";
 import { connect } from "react-redux";
-import { reduceError, reduceClear, reduceJoiningRoom } from '@/lib/chess/slice';
+import { reduceSetRoomId, reduceClear, reduceWaiting, reduceJoiningRoom } from '@/lib/chess/slice';
 import { createChessRoom, joinChessRoom } from '@/lib/chess/wsocket';
 import { useState } from "react";
 
 interface InstructionProps {
     boardState: string,
-    error: string,
+    displayMessage: string,
     roomId: string,
     playerHasWon: boolean,
 }
@@ -15,35 +15,56 @@ interface InstructionProps {
 const mapStateToProps = function (state: ChessState) {
     return {
         boardState: state.boardState,
-        error: state.error,
+        displayMessage: state.displayMessage,
         roomId: state.roomId,
         playerHasWon: state.playerHasWon,
     }
 }
 
+let currentRoomId = "";
+
 function Instruction(props: InstructionProps) {
+    console.log('props : ', props);
 
     const [roomId, setRoomId] = useState("");
     const dispatch = useDispatch();
 
     let children: any = null;
 
-    function handleCreateRoom() {
+    function handleCreatingRoom() {
         console.log('creating room');
         createChessRoom();
     }
 
-    function handleJoinRoom() {
+    function handleJoiningRoom() {
         console.log('joining room ', roomId);
+        dispatch(reduceJoiningRoom());
+    }
+
+    function handleJoinRoom() {
+        console.log('about to join');
+        currentRoomId = roomId;
         joinChessRoom(roomId);
     }
 
     function handlePlayAgain() {
-        console.log('play again..');
+        console.log('play again..', props.roomId);
+        let r = props.roomId || currentRoomId;
+        joinChessRoom(r);
+        dispatch(reduceWaiting());
     }
 
-    function handleCloseError() {
-        console.log('');
+    function handleExit() {
+        console.log('exit/clear');
+        dispatch(reduceClear());
+    }
+
+    function handleRoomIdChange(e: any) {
+        let t = e.target.value as string;
+        if (t) {
+            t = t.replace(/[\r\n]+/gm, "");
+            setRoomId(t);
+        }
     }
 
     if (props.boardState === "init") {
@@ -51,14 +72,14 @@ function Instruction(props: InstructionProps) {
             <div className="p-4" >
                 <span className="mr-4">
                     <button className="h-20 w-40 border-white border-2"
-                        onClick={handleCreateRoom}
+                        onClick={handleCreatingRoom}
                     >
                         CREATE ROOM
                     </button>
                 </span>
                 <span className="ml-4">
                     <button className="h-20 w-40 border-white border-2"
-                        onClick={() => dispatch(reduceJoiningRoom())}
+                        onClick={handleJoiningRoom}
                     >
                         JOIN ROOM
                     </button>
@@ -66,7 +87,7 @@ function Instruction(props: InstructionProps) {
             </div>
         );
 
-    } else if (props.boardState === "waiting") {
+    } else if (props.boardState === "creating") {
         children = (
             <div className="p-4">
                 <div className="text-sm">
@@ -75,8 +96,12 @@ function Instruction(props: InstructionProps) {
                 <div className="h-20 m-auto mt-2 border-2 border-white text-xl text-center pt-6">
                     {props.roomId}
                 </div>
+                <button className="h-10 w-20 border-white border-2 mt-4"
+                    onClick={handleExit}
+                > EXIT
+                </button>
             </div>
-        )
+        );
 
     } else if (props.boardState === "joining") {
         children = (
@@ -86,50 +111,69 @@ function Instruction(props: InstructionProps) {
                     text-xl text-center pt-6
                     "
                     placeholder="Enter room id here"
-                    onChange={(e) => setRoomId(e.target.value)}
+                    onChange={handleRoomIdChange}
                 />
                 <button className="h-10 w-20 border-white border-2 mt-4"
                     onClick={handleJoinRoom}
                 > JOIN
                 </button>
             </div>
-        )
+        );
+
+    } else if (props.boardState === "waiting") {
+        children = (
+            <div className="p-4">
+                <div className="text-sm">
+                    Waiting for other player..
+                </div>
+                <button className="h-10 w-20 border-white border-2 mt-4"
+                    onClick={handleExit}
+                > EXIT
+                </button>
+            </div>
+        );
 
     } else if (props.boardState === "gameover") {
-        <div className="p-4">
-            <div className="text-sm">
-                {props.playerHasWon ? 'You have won' : 'Play again'}
+        children = (
+            <div className="p-4">
+                <div className="text-xl">
+                    Game Over
+                </div>
+                <div className="p-4 text-sm">
+                    {props.displayMessage}
+                </div>
+                <span className="mr-4">
+                    <button className="h-10 w-40 border-white border-2"
+                        onClick={handlePlayAgain}
+                    >
+                        PLAY AGAIN
+                    </button>
+                </span>
+                <span className="ml-4">
+                    <button className="h-10 w-40 border-white border-2"
+                        onClick={handleExit}
+                    >
+                        EXIT
+                    </button>
+                </span>
             </div>
-            <span className="mr-4">
-                <button className="h-20 w-40 border-white border-2"
-                    onClick={handlePlayAgain}
-                >
-                    PLAY AGAIN
-                </button>
-            </span>
-            <span className="ml-4">
-                <button className="h-20 w-40 border-white border-2"
-                    onClick={handleCloseError}
-                >
-                    EXIT
-                </button>
-            </span>
-        </div>
+        );
 
     } else if (props.boardState === "error") {
         children = (
             <div className="p-4">
-                <div className="bg-red-500 text-center text-sm">
-                    {props.error}
+                <div className="text-sm">
+                    {props.displayMessage}
                 </div>
                 <button className="h-10 w-20 text-sm bg-red text-white"
-                    onClick={() => dispatch(reduceClear())}
+                    onClick={handleExit}
                 >
                     CLOSE
                 </button>
             </div>
         );
     }
+
     return (
         <div className="instruction-modal">
             {children}

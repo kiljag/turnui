@@ -6,10 +6,8 @@ import BoardPiece from './BoardPiece';
 import BoardSquare, { SquareState } from './BoardSquare';
 import { ChessState } from '@/lib/chess/slice';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { connect } from 'react-redux';
 import Instruction from './Instruction';
-import * as chessSlice from '@/lib/chess/slice';
 
 // conver 0x88 squareId to algebraic notation
 function algebraic(squareId: number): string {
@@ -26,7 +24,6 @@ interface BoardProps {
     boardState: string,
     roomId: string,
     playerHasWon: boolean,
-    error: string,
     handleMove: (from: string, to: string) => void,
 }
 
@@ -38,7 +35,6 @@ const mapStateToProps = function (state: ChessState) {
         boardState: state.boardState,
         roomId: state.roomId,
         playerHasWon: state.playerHasWon,
-        error: state.error,
     }
 }
 
@@ -46,19 +42,6 @@ function Board(props: BoardProps) {
 
     const [selected, setSelected] = useState<number>(-1);
     const [targetSquares, setTargetSquares] = useState<{ [squareId: number]: boolean }>({});
-    const dispatch = useDispatch();
-
-    function handleJoinRoom() {
-
-    }
-
-    function handlePlayAgain() {
-
-    }
-
-    function handleCloseError() {
-        console.log('closing error popup');
-    }
 
     function handleClick(squareId: number) {
         // player check
