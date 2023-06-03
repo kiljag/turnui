@@ -1,15 +1,15 @@
 'use client';
 
 import { PieceMap, getPieceMap } from '@/lib/chess/piece';
-import { Chess } from 'chess.js';
+import { Chess, Square } from 'chess.js';
 import BoardPiece from './BoardPiece';
-import BoardSquare from './BoardSquare';
+import BoardSquare, { SquareState } from './BoardSquare';
 import { ChessState } from '@/lib/chess/slice';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { connect } from 'react-redux';
 import Instruction from './Instruction';
-import { createRoom, joinRoom } from '@/lib/chess/slice';
+import * as chessSlice from '@/lib/chess/slice';
 
 // conver 0x88 squareId to algebraic notation
 function algebraic(squareId: number): string {
@@ -27,7 +27,7 @@ interface BoardProps {
     roomId: string,
     playerHasWon: boolean,
     error: string,
-    handleMove: (move: string) => void,
+    handleMove: (from: string, to: string) => void,
 }
 
 const mapStateToProps = function (state: ChessState) {
@@ -44,17 +44,16 @@ const mapStateToProps = function (state: ChessState) {
 
 function Board(props: BoardProps) {
 
+    const [selected, setSelected] = useState<number>(-1);
+    const [targetSquares, setTargetSquares] = useState<{ [squareId: number]: boolean }>({});
     const dispatch = useDispatch();
 
-    console.log(props);
+    function handleJoinRoom() {
 
-    function handleCreateRoom() {
-        console.log('creating room');
-        dispatch(createRoom());
     }
 
-    function handleJoinRoom() {
-        console.log('joining room');
+    function handlePlayAgain() {
+
     }
 
     function handleCloseError() {
@@ -62,7 +61,45 @@ function Board(props: BoardProps) {
     }
 
     function handleClick(squareId: number) {
-        console.log('clicked : ', squareId);
+        // player check
+        if (props.playerIsWhite !== (props.chess.turn() === 'w')) {
+            return;
+        }
+
+        // check if the selected square is legal
+        if (selected < 0) {
+            let isLegal = false;
+            let moves = props.chess._moves();
+            for (let i = 0; i < moves.length; i++) {
+                if (moves[i].from === squareId) {
+                    isLegal = true;
+                    break;
+                }
+            }
+            if (!isLegal) return;
+
+            // select the target squares for the selected piece
+            let square = algebraic(squareId);
+            let pieceMoves = props.chess._moves({ square: square as Square });
+            let targetSquares: { [squareId: number]: boolean } = {}
+            for (let i = 0; i < pieceMoves.length; i++) {
+                targetSquares[pieceMoves[i].to] = true;
+            }
+            setSelected(squareId);
+            setTargetSquares(targetSquares);
+
+        } else { // about to move
+            if (!targetSquares[squareId]) {
+                setSelected(-1);
+                setTargetSquares({});
+                return;
+            }
+
+            // make a move
+            setSelected(-1);
+            setTargetSquares({});
+            props.handleMove(algebraic(selected), algebraic(squareId));
+        }
     }
 
     let squares: JSX.Element[] = [];
@@ -72,9 +109,20 @@ function Board(props: BoardProps) {
             if (!props.playerIsWhite) {
                 squareId = ((7 - i) << 4) | (7 - j);
             }
+            let squareState: SquareState = "empty";
+            if (selected == squareId) {
+                squareState = "selected";
+            } else if (targetSquares[squareId]) {
+                if (props.pieceMap[squareId] && (props.pieceMap[squareId].color === (props.playerIsWhite ? 'b' : 'w'))) {
+                    squareState = "attackable";
+                } else {
+                    squareState = "target";
+                }
+            }
             squares.push(
                 <BoardSquare key={squareId}
                     squareId={squareId}
+                    squareState={squareState}
                     playerIsWhite={true}
                     handleClick={handleClick}
                 />
@@ -107,15 +155,7 @@ function Board(props: BoardProps) {
         <div className='board-container'>
             <div className='board'>
                 {props.boardState === 'playing' ||
-                    <Instruction
-                        error={props.error}
-                        boardState={props.boardState}
-                        roomId={props.roomId}
-                        playerHasWon={props.playerHasWon}
-                        handleCreate={handleCreateRoom}
-                        handleJoin={handleJoinRoom}
-                        handleCloseError={handleCloseError}
-                    />
+                    <Instruction />
                 }
                 {squares}
                 {pieces}

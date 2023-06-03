@@ -6,11 +6,13 @@ type BoardState = "init" | "waiting" | "joining" | "playing" | "gameover" | "err
 
 export interface ChessState {
     chess: Chess,
+    chessMoves: string[],
     pieceMap: PieceMap,
     boardState: BoardState,
     roomId: string,
     playerId: string,
     playerIsWhite: boolean,
+    isPlayerTurn: boolean,
     playerHasWon: boolean,
     error: string,
 }
@@ -20,11 +22,13 @@ let pieceMap = getPieceMap(chess);
 
 const initialState: ChessState = {
     chess: chess,
+    chessMoves: [],
     pieceMap: pieceMap,
     boardState: "init",
     roomId: "",
     playerId: "",
     playerIsWhite: true,
+    isPlayerTurn: false,
     playerHasWon: false,
     error: '',
 }
@@ -33,40 +37,70 @@ const chessSlice = createSlice({
     name: 'chess',
     initialState: initialState,
     reducers: {
-        createRoom: (state) => {
-            state.chess = state.chess;
-            state.boardState = "waiting";
-            state.roomId = "room_123";
+
+        reduceClear: (state) => {
+            return initialState;
         },
 
-        joinRoom: (state, action) => {
+        reduceJoiningRoom: (state) => {
             state.boardState = "joining";
-            state.roomId = ""
+            state.roomId = "";
         },
 
-        setNewPlayer: (state, action) => {
+        // websocket responses
+        reduceNewRoom: (state, action) => {
+            const payload = action.payload;
+            state.roomId = payload['roomId'];
+        },
+
+        reduceNewPlayer: (state, action) => {
             let payload = action.payload;
-            state.chess = new Chess();
-            state.roomId = payload.roomId;
-            state.playerId = payload.playerId;
-            state.playerIsWhite = payload.playerIsWhite;
-            state.pieceMap = {};
+            state.playerId = payload['playerId'];
+            state.playerIsWhite = (payload['color'] === 'w');
+            state.boardState = 'waiting';
         },
 
-        startGame: (state, action) => {
-            state.chess = new Chess();
+        reduceStartGame: (state, action) => {
+            let chess = new Chess();
+            state.chess = chess;
+            state.pieceMap = getPieceMap(chess);
+            state.boardState = 'playing';
+            state.isPlayerTurn = state.playerIsWhite;
         },
 
-        makeMove: (state, action) => {
-
+        reduceChessMove: (state, action) => {
+            let payload = action.payload;
+            try {
+                state.pieceMap = getPieceMap(state.chess as Chess);
+                state.boardState = 'playing';
+                state.isPlayerTurn = (state.playerIsWhite === (state.chess.turn() === 'w'));
+            } catch (err) {
+                console.log('error in reduceMakeMove : ', err)
+            }
         },
 
-        testMove: (state, action) => {
-            state.pieceMap = action.payload.pieceMap;
+        reduceEndGame: (state, action) => {
+            let payload = action.payload;
+            if (payload['isgameover']) {
+                state.boardState = 'gameover';
+
+            } else if (payload['error']) {
+                state.boardState = 'error';
+                state.error = payload['message'];
+            }
         },
+
+        reduceError: (state, action) => {
+            let payload = action.payload;
+            state.boardState = 'error';
+            state.error = payload['message'];
+        }
     }
 });
 
-export const { createRoom, joinRoom, setNewPlayer, testMove } = chessSlice.actions;
+export const {
+    reduceClear, reduceJoiningRoom, reduceError,
+    reduceNewRoom, reduceNewPlayer, reduceStartGame, reduceChessMove, reduceEndGame,
+} = chessSlice.actions;
 
 export default chessSlice;
