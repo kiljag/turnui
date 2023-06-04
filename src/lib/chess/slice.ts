@@ -2,35 +2,53 @@ import { Chess, Piece } from 'chess.js';
 import { PieceMap, getPieceMap } from './piece';
 import { createSlice } from '@reduxjs/toolkit';
 
-type BoardState = "init" | "waiting" | "creating" | "joining" | "playing" | "gameover" | "error";
+type BoardState = "init" | "creating" | "playing" | "gameover" | "waiting" | "error";
 
 export interface ChessState {
+    // room info
+    sessionId: string,
+    roomId: string,
+    isHost: boolean,
+
+    // board info
     chess: Chess,
     chessMoves: string[],
     pieceMap: PieceMap,
+
     boardState: BoardState,
-    roomId: string,
     playerId: string,
     playerIsWhite: boolean,
     isPlayerTurn: boolean,
     playerHasWon: boolean,
     displayMessage: string,
+
+    // video stream
+    activeLocalStream: boolean,
+    activeRemoteStream: boolean,
 }
 
 let chess = new Chess();
 let pieceMap = getPieceMap(chess);
 
 const initialState: ChessState = {
+    // room info
+    sessionId: "",
+    roomId: "",
+    isHost: false,
+
     chess: chess,
     chessMoves: [],
     pieceMap: pieceMap,
+
     boardState: "init",
-    roomId: "",
     playerId: "",
     playerIsWhite: true,
     isPlayerTurn: false,
     playerHasWon: false,
     displayMessage: '',
+
+    activeLocalStream: false,
+    activeRemoteStream: false,
 }
 
 const chessSlice = createSlice({
@@ -38,64 +56,44 @@ const chessSlice = createSlice({
     initialState: initialState,
     reducers: {
 
-        reduceClear: (state) => {
-            return initialState;
-        },
-
-        reduceCreatingRoom: (state) => {
-            state.boardState = "creating";
-        },
-
-        reduceSetRoomId: (state, action) => {
-
-            // const payload = action.payload;
-            // const roomId = payload.roomId;
-            // state.roomId = "" + roomId;
-        },
-
-        reduceJoiningRoom: (state) => {
-            state.boardState = "joining";
-        },
-
-        reduceWaiting: (state) => {
-            state.boardState = "waiting";
-        },
-
-        reduceError: (state, action) => {
-            let payload = action.payload;
-            state.boardState = 'error';
-            state.displayMessage = payload['message'];
-        },
-
         // websocket responses
-        reduceNewRoom: (state, action) => {
+        reduceRoomInfo: (state, action) => {
             const payload = action.payload;
-            state.roomId = payload['roomId'];
-            state.boardState = 'creating';
+            return {
+                ...state,
+                roomId: payload['roomId'],
+                sessionId: payload['sessionId'],
+                boardState: payload['isHost'] ? 'creating' : state.boardState,
+                isHost: payload['isHost'],
+            }
         },
 
-        reduceNewPlayer: (state, action) => {
+        reducePlayerInfo: (state, action) => {
             let payload = action.payload;
-            state.playerId = payload['playerId'];
-            state.playerIsWhite = (payload['color'] === 'w');
+            return {
+                ...state,
+                playerId: payload['playerId'],
+                playerIsWhite: (payload['color'] === 'w'),
+                boardState: 'waiting',
+            }
         },
 
         reduceStartGame: (state, action) => {
             let chess = new Chess();
             state.chess = chess;
             state.pieceMap = getPieceMap(chess);
-            state.boardState = 'playing';
             state.isPlayerTurn = state.playerIsWhite;
+            state.boardState = 'playing';
         },
 
         reduceChessMove: (state, action) => {
             let payload = action.payload;
-            try {
-                state.pieceMap = getPieceMap(state.chess as Chess);
-                state.boardState = 'playing';
-                state.isPlayerTurn = (state.playerIsWhite === (state.chess.turn() === 'w'));
-            } catch (err) {
-                console.log('error in reduceMakeMove : ', err)
+            let isPlayerTurn = (state.playerIsWhite === (state.chess.turn() === 'w'));
+            return {
+                ...state,
+                pieceMap: getPieceMap(state.chess as Chess),
+                isPlayerTurn: isPlayerTurn,
+                chessMoves: [...state.chessMoves, payload['move']],
             }
         },
 
@@ -109,12 +107,43 @@ const chessSlice = createSlice({
                 state.displayMessage = payload['message'];
             }
         },
+
+        reduceError: (state, action) => {
+            let payload = action.payload;
+            state.boardState = 'error';
+            state.displayMessage = payload['message'];
+        },
+
+        reduceClear: (state) => {
+            return {
+                ...state,
+                chess: new Chess(),
+                chessMoves: [],
+                boardState: "init",
+                pieceMap: {},
+            };
+        },
+
+        // streams
+        reduceLocalStream: (state) => {
+            return {
+                ...state,
+                activeLocalStream: true,
+            }
+        },
+
+        reduceRemoteStream: (state) => {
+            return {
+                ...state,
+                activeRemoteStream: true,
+            }
+        }
     }
 });
 
 export const {
-    reduceClear, reduceJoiningRoom, reduceCreatingRoom, reduceWaiting, reduceError, reduceSetRoomId,
-    reduceNewRoom, reduceNewPlayer, reduceStartGame, reduceChessMove, reduceEndGame,
+    reduceRoomInfo, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
+    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream,
 } = chessSlice.actions;
 
 export default chessSlice;

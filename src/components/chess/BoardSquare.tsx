@@ -10,6 +10,14 @@ interface BoardSquareProps {
     handleClick: (sqaureId: number) => void,
 }
 
+// conver 0x88 squareId to algebraic notation
+function algebraic(squareId: number): string {
+    const f = squareId & 0xf;
+    const r = squareId >> 4;
+    return ('abcdefgh'.substring(f, f + 1) +
+        '87654321'.substring(r, r + 1));
+}
+
 export default function BoardSquare(props: BoardSquareProps) {
 
     let children: any = null;
@@ -31,7 +39,7 @@ export default function BoardSquare(props: BoardSquareProps) {
     }
 
     return (
-        <div className="square"
+        <div className={`square ${algebraic(props.squareId)}`}
             onClick={() => props.handleClick(props.squareId)}
         >
             {children}

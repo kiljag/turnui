@@ -5,6 +5,8 @@ import { Provider } from 'react-redux';
 import store from '@/lib/store';
 import VideoBar from './VideoBar';
 import { makeChessMove } from '@/lib/chess/wsocket';
+import { useEffect } from 'react';
+import { setupLocalStream } from '@/lib/chess/wsocket';
 
 export default function ChessApp() {
 
@@ -14,10 +16,14 @@ export default function ChessApp() {
         makeChessMove(move);
     }
 
+    useEffect(() => {
+        setupLocalStream();
+    })
+
     return (
         <Provider store={store}>
             <div className='chess-app'>
-                <VideoBar opponentJoined={false} />
+                <VideoBar />
                 <Board
                     handleMove={handleMove}
                 />

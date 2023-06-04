@@ -44,6 +44,11 @@ function Board(props: BoardProps) {
     const [targetSquares, setTargetSquares] = useState<{ [squareId: number]: boolean }>({});
 
     function handleClick(squareId: number) {
+        if (props.boardState !== "playing") {
+            console.error('board is not in playing state');
+            return;
+        }
+
         // player check
         if (props.playerIsWhite !== (props.chess.turn() === 'w')) {
             return;

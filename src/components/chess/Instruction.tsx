@@ -1,9 +1,8 @@
-import { ChessState } from "@/lib/chess/slice";
-import { useDispatch, useSelector } from "react-redux";
-import { connect } from "react-redux";
-import { reduceSetRoomId, reduceClear, reduceWaiting, reduceJoiningRoom } from '@/lib/chess/slice';
-import { createChessRoom, joinChessRoom } from '@/lib/chess/wsocket';
+
 import { useState } from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { ChessState, reduceClear } from "@/lib/chess/slice";
+import { createChessRoom, joinChessRoom, playChessAgain } from '@/lib/chess/wsocket';
 
 interface InstructionProps {
     boardState: string,
@@ -21,44 +20,15 @@ const mapStateToProps = function (state: ChessState) {
     }
 }
 
-let currentRoomId = "";
-
 function Instruction(props: InstructionProps) {
-    console.log('props : ', props);
 
+    const [joining, setJoining] = useState(false);
     const [roomId, setRoomId] = useState("");
     const dispatch = useDispatch();
 
     let children: any = null;
 
-    function handleCreatingRoom() {
-        console.log('creating room');
-        createChessRoom();
-    }
-
-    function handleJoiningRoom() {
-        console.log('joining room ', roomId);
-        dispatch(reduceJoiningRoom());
-    }
-
-    function handleJoinRoom() {
-        console.log('about to join');
-        currentRoomId = roomId;
-        joinChessRoom(roomId);
-    }
-
-    function handlePlayAgain() {
-        console.log('play again..', props.roomId);
-        let r = props.roomId || currentRoomId;
-        joinChessRoom(r);
-        dispatch(reduceWaiting());
-    }
-
-    function handleExit() {
-        console.log('exit/clear');
-        dispatch(reduceClear());
-    }
-
+    // user action handlers
     function handleRoomIdChange(e: any) {
         let t = e.target.value as string;
         if (t) {
@@ -67,19 +37,62 @@ function Instruction(props: InstructionProps) {
         }
     }
 
-    if (props.boardState === "init") {
+    function handleJoinClick() {
+        console.log('joining room ', roomId);
+        setJoining(true);
+    }
+
+    // async calls
+    function handleCreate() {
+        console.log('creating room');
+        createChessRoom();
+    }
+
+    function handleJoin() {
+        console.log('about to join');
+        joinChessRoom(roomId);
+    }
+
+    function handlePlayAgain() {
+        console.log('play again..');
+        playChessAgain();
+    }
+
+    function handleExit() {
+        console.log('exit/clear');
+        dispatch(reduceClear());
+    }
+
+    if (joining) { // propmt the player to enter roomid
+        children = (
+            <div className="p-4">
+                <textarea className="h-20 w-full 
+                    bg-transparent border-white border-2 text-white
+                    text-xl text-center pt-6
+                    "
+                    placeholder="Enter room id here"
+                    onChange={handleRoomIdChange}
+                />
+                <button className="h-10 w-20 border-white border-2 mt-4"
+                    onClick={handleJoin}
+                > JOIN
+                </button>
+            </div>
+        );
+
+    } else if (props.boardState === "init") {
         children = (
             <div className="p-4" >
                 <span className="mr-4">
                     <button className="h-20 w-40 border-white border-2"
-                        onClick={handleCreatingRoom}
+                        onClick={handleCreate}
                     >
                         CREATE ROOM
                     </button>
                 </span>
                 <span className="ml-4">
                     <button className="h-20 w-40 border-white border-2"
-                        onClick={handleJoiningRoom}
+                        onClick={handleJoinClick}
                     >
                         JOIN ROOM
                     </button>
@@ -99,23 +112,6 @@ function Instruction(props: InstructionProps) {
                 <button className="h-10 w-20 border-white border-2 mt-4"
                     onClick={handleExit}
                 > EXIT
-                </button>
-            </div>
-        );
-
-    } else if (props.boardState === "joining") {
-        children = (
-            <div className="p-4">
-                <textarea className="h-20 w-full 
-                    bg-transparent border-white border-2 text-white
-                    text-xl text-center pt-6
-                    "
-                    placeholder="Enter room id here"
-                    onChange={handleRoomIdChange}
-                />
-                <button className="h-10 w-20 border-white border-2 mt-4"
-                    onClick={handleJoinRoom}
-                > JOIN
                 </button>
             </div>
         );
