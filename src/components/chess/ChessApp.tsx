@@ -19,14 +19,23 @@ export default function ChessApp() {
     }
 
     useEffect(() => {
-        // setupLocalStream();
+        setupLocalStream();
     })
 
     return (
         <Provider store={store}>
-            <div className='chess-app'>
+            <div className='w-full h-full items-center'>
                 <VideoBar />
-                <Board handleMove={handleMove} />
+                <div className='w-full flex items-center'>
+                    <div className='m-auto p-4'>
+                        <Board handleMove={handleMove} />
+                    </div>
+
+                    {/* <div className='m-auto p-4 items-center'> */}
+                    {/* <MovesArea /> */}
+                    {/* <ChatBox /> */}
+                    {/* </div> */}
+                </div>
             </div>
         </Provider>
     );

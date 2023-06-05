@@ -23,7 +23,7 @@ function MovesArea(props: MovesAreaProps) {
     }
 
     return (
-        <div className="moves-area h-12 w-4">
+        <div className="moves-area">
             This is moves area
             {children}
         </div>

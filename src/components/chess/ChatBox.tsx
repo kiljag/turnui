@@ -15,7 +15,7 @@ function ChatBox(props: ChatBoxProps) {
     let children: any[];
 
     return (
-        <div className="h-12 w-6">
+        <div className="chat-box">
             This is chat area
         </div>
     )
