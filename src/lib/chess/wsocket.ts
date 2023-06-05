@@ -10,6 +10,9 @@ import {
 } from './sounds';
 import { Chess } from 'chess.js';
 
+let WS_HOST = process.env['NEXT_PUBLIC_WS_HOST'] as string
+console.log('wsHost: ', WS_HOST);
+
 interface ChessInfo {
     wsocket: WebSocket | null;
     localStream: MediaStream | null;
@@ -38,15 +41,14 @@ let unknownError = {
 
 async function createConnection(): Promise<WebSocket> {
 
-    let wsHost = process.env['WS_HOST'] as string;
     return new Promise((resolve, reject) => {
         try {
-            let ws = new WebSocket(wsHost);
+            let ws = new WebSocket(WS_HOST);
             ws.onopen = (event: any) => {
                 resolve(ws);
             }
             ws.onerror = (event: any) => {
-                console.error(`error connecting to server ${wsHost} : `, event);
+                console.error(`error connecting to server ${WS_HOST} : `, event);
                 reject();
             }
 
