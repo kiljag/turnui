@@ -17,7 +17,6 @@ const mapStateToProps = function (state: ChessState) {
 }
 
 function VideoBar(props: VideoBarProps) {
-    console.log('video props : ', props);
 
     const localRef = useRef<HTMLVideoElement>(null);
     const remoteRef = useRef<HTMLVideoElement>(null);

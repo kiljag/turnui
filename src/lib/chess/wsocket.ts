@@ -72,7 +72,7 @@ async function initializeLocalStream(): Promise<MediaStream> {
             })
             .catch((err) => {
                 console.error('error opening media devices :', err);
-                reject();
+                reject(err);
             });
     });
 }
@@ -302,7 +302,7 @@ export async function setupLocalStream() {
         console.log('initialized localstream');
         store.dispatch(reduceLocalStream());
     } catch (error) {
-        console.log('failed to initialize localstream');
+        console.log('failed to initialize localstream', error);
     }
 
 }
