@@ -36,13 +36,13 @@ function VideoBar(props: VideoBarProps) {
 
             {props.activeLocalStream ? (
                 <div className="video-container">
-                    <video className="h-full w-full" ref={localRef} autoPlay playsInline />
+                    <video className="h-full w-full" ref={localRef} autoPlay playsInline muted />
                 </div>
             ) : null}
 
             {props.activeRemoteStream ? (
                 <div className="video-container">
-                    <video className="h-full w-full" ref={remoteRef} autoPlay playsInline />
+                    <video className="h-full w-full" ref={remoteRef} autoPlay playsInline muted />
                 </div>
             ) : null}
 

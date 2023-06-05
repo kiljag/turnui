@@ -7,7 +7,7 @@ import BoardSquare, { SquareState } from './BoardSquare';
 import { ChessState } from '@/lib/chess/slice';
 import { useState } from 'react';
 import { connect } from 'react-redux';
-import Instruction from './Instruction';
+import ChessModal from './ChessModal';
 
 // conver 0x88 squareId to algebraic notation
 function algebraic(squareId: number): string {
@@ -141,9 +141,9 @@ function Board(props: BoardProps) {
 
     return (
         <div className='board-container'>
-            <div className='board'>
+            <div className={`board ${props.playerIsWhite ? 'board-white' : 'board-black'}`}>
                 {props.boardState === 'playing' ||
-                    <Instruction />
+                    <ChessModal />
                 }
                 {squares}
                 {pieces}

@@ -1,0 +1,91 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="12.5" y="0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="25.0" y="0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="37.5" y="0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="50.0" y="0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="62.5" y="0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="75.0" y="0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="87.5" y="0" width="12.5" height="12.5" fill="#B08248" />
+
+    <rect x="0" y="12.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="12.5" y="12.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="25.0" y="12.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="37.5" y="12.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="50.0" y="12.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="62.5" y="12.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="75.0" y="12.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="87.5" y="12.5" width="12.5" height="12.5" fill="#F7EFC2" />
+
+    <rect x="0" y="25.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="12.5" y="25.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="25.0" y="25.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="37.5" y="25.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="50.0" y="25.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="62.5" y="25.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="75.0" y="25.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="87.5" y="25.0" width="12.5" height="12.5" fill="#B08248" />
+
+    <rect x="0" y="37.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="12.5" y="37.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="25.0" y="37.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="37.5" y="37.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="50.0" y="37.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="62.5" y="37.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="75.0" y="37.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="87.5" y="37.5" width="12.5" height="12.5" fill="#F7EFC2" />
+
+    <rect x="0" y="50.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="12.5" y="50.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="25.0" y="50.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="37.5" y="50.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="50.0" y="50.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="62.5" y="50.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="75.0" y="50.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="87.5" y="50.0" width="12.5" height="12.5" fill="#B08248" />
+
+    <rect x="0" y="62.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="12.5" y="62.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="25.0" y="62.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="37.5" y="62.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="50.0" y="62.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="62.5" y="62.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="75.0" y="62.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="87.5" y="62.5" width="12.5" height="12.5" fill="#F7EFC2" />
+
+    <rect x="0" y="75.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="12.5" y="75.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="25.0" y="75.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="37.5" y="75.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="50.0" y="75.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="62.5" y="75.0" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="75.0" y="75.0" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="87.5" y="75.0" width="12.5" height="12.5" fill="#B08248" />       
+
+    <rect x="0" y="87.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="12.5" y="87.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="25.0" y="87.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="37.5" y="87.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="50.0" y="87.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="62.5" y="87.5" width="12.5" height="12.5" fill="#F7EFC2" />
+    <rect x="75.0" y="87.5" width="12.5" height="12.5" fill="#B08248" />
+    <rect x="87.5" y="87.5" width="12.5" height="12.5" fill="#F7EFC2" /> 
+
+    <text x="0.75" y="3.5" font-size="2.8" color="black">8</text>
+    <text x="0.75" y="15.75" font-size="2.8" color="black">7</text>
+    <text x="0.75" y="28.25" font-size="2.8" color="black">6</text>
+    <text x="0.75" y="40.75" font-size="2.8" color="black">5</text>
+    <text x="0.75" y="53.25" font-size="2.8" color="black">4</text>
+    <text x="0.75" y="65.75" font-size="2.8" color="black">3</text>
+    <text x="0.75" y="78.25" font-size="2.8" color="black">2</text>
+    <text x="0.75" y="90.75" font-size="2.8" color="black">1</text>
+
+    <text x="10" y="99" font-size="2.8" color="black">a</text>
+    <text x="22.5" y="99" font-size="2.8" color="black">b</text>
+    <text x="35" y="99" font-size="2.8" color="black">c</text>
+    <text x="47.5" y="99" font-size="2.8" color="black">d</text>
+    <text x="60" y="99" font-size="2.8" color="black">e</text>
+    <text x="72.5" y="99" font-size="2.8" color="black">f</text>
+    <text x="85" y="99" font-size="2.8" color="black">g</text>
+    <text x="97.5" y="99" font-size="2.8" color="black">h</text>
+</svg>

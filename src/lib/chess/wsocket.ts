@@ -5,6 +5,9 @@ import {
     reduceRoomInfo, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
     reduceError, reduceClear, reduceLocalStream, reduceRemoteStream
 } from './slice';
+import {
+    playMoveSelf, playCaptureSound,
+} from './sounds';
 import { Chess } from 'chess.js';
 
 interface ChessInfo {
@@ -241,6 +244,11 @@ function onmessage(event: any) {
                     let chessMove = state.chess.move(move);
                     store.dispatch(reduceChessMove(payload));
 
+                    if (chessMove.captured) {
+                        playCaptureSound();
+                    } else {
+                        playMoveSelf();
+                    }
                 } catch (error) {
                     console.log('error in making move : ', move);
                     store.dispatch(reduceError({

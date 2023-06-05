@@ -64,15 +64,33 @@ body {
   grid-template-columns: repeat(8, 80px);
   margin: 0 auto;
   margin-top: 20px;
-  background-image: url('../assets/sprites/150.png');
-  background-size: 100%;
   border: 1px solid black;
   box-sizing: content-box;
+}
+
+.board-black {
+  background-image: url('../assets/board/black-board.svg');
+  background-size: 100%;
+}
+
+.board-white {
+  background-image: url('../assets/board/white-board.svg');
+  background-size: 100%;
 }
 
 .square {
   width: 80px;
   height: 80px;
+}
+
+.square-target {
+  background-image: url('../assets/board/square-target.svg');
+  background-size: 100%;
+}
+
+.square-attackable {
+  background-image: url('../assets/board/square-attackable.svg');
+  background-size: 100%;
 }
 
 .piece {

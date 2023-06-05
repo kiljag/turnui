@@ -4,7 +4,7 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { ChessState, reduceClear } from "@/lib/chess/slice";
 import { createChessRoom, joinChessRoom, playChessAgain } from '@/lib/chess/wsocket';
 
-interface InstructionProps {
+interface ChessModalProps {
     boardState: string,
     displayMessage: string,
     roomId: string,
@@ -20,7 +20,7 @@ const mapStateToProps = function (state: ChessState) {
     }
 }
 
-function Instruction(props: InstructionProps) {
+function ChessModal(props: ChessModalProps) {
 
     const [joining, setJoining] = useState(false);
     const [roomId, setRoomId] = useState("");
@@ -159,7 +159,7 @@ function Instruction(props: InstructionProps) {
         children = (
             <div className="p-4">
                 <div className="text-sm">
-                    {props.displayMessage}
+                    {props.displayMessage || "Error connecting to server"}
                 </div>
                 <button className="h-10 w-20 text-sm bg-red text-white"
                     onClick={handleExit}
@@ -177,4 +177,4 @@ function Instruction(props: InstructionProps) {
     );
 }
 
-export default connect(mapStateToProps)(Instruction);
+export default connect(mapStateToProps)(ChessModal);

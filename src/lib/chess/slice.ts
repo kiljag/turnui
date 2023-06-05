@@ -25,6 +25,9 @@ export interface ChessState {
     // video stream
     activeLocalStream: boolean,
     activeRemoteStream: boolean,
+
+    // chats
+    chatMessages: string[],
 }
 
 let chess = new Chess();
@@ -49,6 +52,8 @@ const initialState: ChessState = {
 
     activeLocalStream: false,
     activeRemoteStream: false,
+
+    chatMessages: [],
 }
 
 const chessSlice = createSlice({
