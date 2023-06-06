@@ -136,6 +136,7 @@ const chessSlice = createSlice({
                 ...state,
                 chess: new Chess(),
                 chessMoves: [],
+                chatMessages: [],
                 boardState: "init",
                 pieceMap: {},
                 roomCreated: false,
