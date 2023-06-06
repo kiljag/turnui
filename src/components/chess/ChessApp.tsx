@@ -20,24 +20,43 @@ export default function ChessApp() {
 
     useEffect(() => {
         setTimeout(() => {
-            setupLocalStream();
-        }, 2000);
+            // setupLocalStream();
+        }, 1000);
 
     })
 
     return (
         <Provider store={store}>
             <div className='w-full h-full items-center'>
-                <VideoBar />
-                <div className='w-full flex items-center'>
-                    <div className='m-auto p-4'>
-                        <Board handleMove={handleMove} />
-                    </div>
 
-                    {/* <div className='m-auto p-4 items-center'> */}
-                    {/* <MovesArea /> */}
-                    {/* <ChatBox /> */}
-                    {/* </div> */}
+                <div className='flex-container bg-gray-900'>
+                    <div></div>
+                    <div className='mt-2'>
+                        <VideoBar />
+                    </div>
+                    <div></div>
+                </div>
+
+                <div className='flex-container'>
+                    <div>
+                        <div className='flex flex-row-reverse'>
+                            <div className='mr-10'>
+                                <MovesArea />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div className='board-root bg-gray-900'>
+                            <Board handleMove={handleMove} />
+                        </div>
+                    </div>
+                    <div>
+                        <div className='flex flex-row'>
+                            <div className='ml-10'>
+                                <ChatBox />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </Provider>

@@ -4,11 +4,17 @@ import { createSlice } from '@reduxjs/toolkit';
 
 type BoardState = "init" | "creating" | "playing" | "gameover" | "waiting" | "error";
 
+export interface ChatMessage {
+    chatId: number,
+    message: string,
+}
+
 export interface ChessState {
     // room info
     sessionId: string,
     roomId: string,
     isHost: boolean,
+    roomCreated: boolean,
 
     // board info
     chess: Chess,
@@ -27,21 +33,21 @@ export interface ChessState {
     activeRemoteStream: boolean,
 
     // chats
-    chatMessages: string[],
+    chatMessages: ChatMessage[],
 }
 
 let chess = new Chess();
-let pieceMap = getPieceMap(chess);
 
 const initialState: ChessState = {
     // room info
     sessionId: "",
     roomId: "",
     isHost: false,
+    roomCreated: false,
 
     chess: chess,
     chessMoves: [],
-    pieceMap: pieceMap,
+    pieceMap: {},
 
     boardState: "init",
     playerId: "",
@@ -73,6 +79,11 @@ const chessSlice = createSlice({
             }
         },
 
+        reduceRoomCreated: (state) => {
+            state.roomCreated = true;
+            state.chatMessages = [];
+        },
+
         reducePlayerInfo: (state, action) => {
             let payload = action.payload;
             return {
@@ -87,6 +98,7 @@ const chessSlice = createSlice({
             let chess = new Chess();
             state.chess = chess;
             state.pieceMap = getPieceMap(chess);
+            state.chessMoves = [];
             state.isPlayerTurn = state.playerIsWhite;
             state.boardState = 'playing';
         },
@@ -126,7 +138,25 @@ const chessSlice = createSlice({
                 chessMoves: [],
                 boardState: "init",
                 pieceMap: {},
+                roomCreated: false,
+                roomId: "",
+                sessionId: "",
+                isHost: false,
             };
+        },
+
+        // chat
+        reduceChatMessage: (state, action) => {
+            const payload = action.payload;
+            const item: ChatMessage = {
+                chatId: payload['chatId'],
+                message: payload['message'],
+            };
+            let chatMessages = state.chatMessages.concat(item);
+            return {
+                ...state,
+                chatMessages: chatMessages,
+            }
         },
 
         // streams
@@ -147,8 +177,8 @@ const chessSlice = createSlice({
 });
 
 export const {
-    reduceRoomInfo, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
-    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream,
+    reduceRoomInfo, reduceRoomCreated, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
+    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage,
 } = chessSlice.actions;
 
 export default chessSlice;

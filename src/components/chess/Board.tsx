@@ -140,15 +140,14 @@ function Board(props: BoardProps) {
     }
 
     return (
-        <div className='board-container'>
+        <div className='board-container bg-gray-800'>
             <div className={`board ${props.playerIsWhite ? 'board-white' : 'board-black'}`}>
-                {props.boardState === 'playing' ||
-                    <ChessModal />
-                }
+                {props.boardState === 'playing' || <ChessModal />}
                 {squares}
                 {pieces}
             </div>
         </div>
+
     )
 }
 

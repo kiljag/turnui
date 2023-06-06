@@ -13,19 +13,21 @@ const mapStateToProps = function (state: ChessState) {
 }
 
 function MovesArea(props: MovesAreaProps) {
-    let children: any;
+    let children: any[] = [];
     for (let i = 0; i < props.moves.length; i++) {
         children.push(
-            <div key={i}>
+            <span key={i}
+                className="text-xl rounded-xl bg-gray-800 text-white text-center" >
                 {props.moves[i]}
-            </div>
+            </span>
         );
     }
 
     return (
-        <div className="moves-area">
-            This is moves area
-            {children}
+        <div className="moves-area m-auto mt-2 p-4 bg-gray-900 rounded-xl">
+            <div className="moves-box">
+                {children}
+            </div>
         </div>
     )
 }

@@ -31,7 +31,7 @@ function VideoBar(props: VideoBarProps) {
     }, [props]);
 
     return (
-        <div className="w-full h-40 border-b border-solid border-grey-50 align-middle items-center">
+        <div className="video-area align-middle items-center rounded-xl">
             <div className="flex align-center justify-center max-w-md gap-2 m-auto">
                 {props.activeLocalStream ? (
                     <div className="w-48 h-36 m-2">
@@ -46,9 +46,7 @@ function VideoBar(props: VideoBarProps) {
                 ) : null}
 
             </div>
-
         </div>
-
     )
 }
 

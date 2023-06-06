@@ -2,8 +2,8 @@
 import * as types from './types';
 import store from '../store';
 import {
-    reduceRoomInfo, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
-    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream
+    reduceRoomInfo, reduceRoomCreated, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
+    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage,
 } from './slice';
 import {
     playMoveSelf, playCaptureSound,
@@ -226,6 +226,7 @@ function onmessage(event: any) {
                     createOffer();
                 }
 
+                store.dispatch(reduceRoomCreated());
                 break;
             }
 
@@ -245,7 +246,6 @@ function onmessage(event: any) {
                 try {
                     let chessMove = state.chess.move(move);
                     store.dispatch(reduceChessMove(payload));
-
                     if (chessMove.captured) {
                         playCaptureSound();
                     } else {
@@ -281,6 +281,11 @@ function onmessage(event: any) {
                 else if (ice !== undefined) {
                     processIceCandidate(ice);
                 }
+                break;
+            }
+
+            case types.TYPE_CHAT_MESSAGE: {
+                store.dispatch(reduceChatMessage(payload));
                 break;
             }
         }
@@ -379,6 +384,28 @@ export function makeChessMove(move: string) {
 
 export async function playChessAgain() {
     await addToChessRoom();
+}
+
+export async function sendChatMessage(message: string) {
+    try {
+        let state = store.getState();
+        if (state.roomId === "" || state.sessionId === "") {
+            console.log('roomId/sessionId are empty..');
+            return;
+        }
+
+        console.log('sending chat message : ', message);
+        chessInfo.wsocket?.send(JSON.stringify({
+            type: types.TYPE_CHAT_MESSAGE,
+            payload: {
+                sessionId: state.sessionId,
+                roomId: state.roomId,
+                message: message,
+            }
+        }));
+    } catch (error) {
+        console.error('error in sending message : ', error);
+    }
 }
 
 export async function leaveChessRoom() {
