@@ -20,7 +20,7 @@ export default function ChessApp() {
 
     useEffect(() => {
         setTimeout(() => {
-            // setupLocalStream();
+            setupLocalStream();
         }, 1000);
 
     })

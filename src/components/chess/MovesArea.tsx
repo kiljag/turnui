@@ -17,7 +17,7 @@ function MovesArea(props: MovesAreaProps) {
     for (let i = 0; i < props.moves.length; i++) {
         children.push(
             <span key={i}
-                className="text-xl rounded-xl bg-gray-800 text-white text-center" >
+                className="text-xl m-1 rounded-xl bg-gray-800 text-white text-center" >
                 {props.moves[i]}
             </span>
         );
