@@ -22,7 +22,6 @@ export default function ChessApp() {
         setTimeout(() => {
             setupLocalStream();
         }, 1000);
-
     })
 
     return (

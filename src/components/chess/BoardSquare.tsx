@@ -1,6 +1,6 @@
 import { Piece } from "chess.js";
 
-export type SquareState = "empty" | "selected" | "target" | "attackable"
+export type SquareState = "empty" | "selected" | "target" | "attackable" | "fromsquare" | "tosquare" | "ischeck";
 
 interface BoardSquareProps {
     squareId: number,
@@ -23,7 +23,7 @@ export default function BoardSquare(props: BoardSquareProps) {
     let children: any = null;
     if (props.squareState === "selected") {
         children = (
-            <div className="h-full w-full bg-green-500">
+            <div className="h-full w-full bg-green-500 opacity-5">
             </div>
         )
     } else if (props.squareState === "target") {
@@ -34,6 +34,21 @@ export default function BoardSquare(props: BoardSquareProps) {
     } else if (props.squareState === "attackable") {
         children = (
             <div className="h-full w-full square-attackable">
+            </div>
+        )
+    } else if (props.squareState === "fromsquare") {
+        children = (
+            <div className="h-full w-full bg-yellow-400">
+            </div>
+        )
+    } else if (props.squareState === "tosquare") {
+        children = (
+            <div className="h-full w-full bg-green-400">
+            </div>
+        )
+    } else if (props.squareState === "ischeck") {
+        children = (
+            <div className="h-full w-full bg-red-600 bg-gradient-radial">
             </div>
         )
     }

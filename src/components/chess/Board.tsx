@@ -1,7 +1,7 @@
 'use client';
 
 import { PieceMap, getPieceMap } from '@/lib/chess/piece';
-import { Chess, Square } from 'chess.js';
+import { Chess, Square, Move } from 'chess.js';
 import BoardPiece from './BoardPiece';
 import BoardSquare, { SquareState } from './BoardSquare';
 import { ChessState } from '@/lib/chess/slice';
@@ -15,6 +15,12 @@ function algebraic(squareId: number): string {
     const r = squareId >> 4;
     return ('abcdefgh'.substring(f, f + 1) +
         '87654321'.substring(r, r + 1));
+}
+
+function tosquareid(id: string): number {
+    const r = '87654321'.indexOf(id[1]);
+    const f = 'abcdefgh'.indexOf(id[0]);
+    return (r << 4 | f);
 }
 
 interface BoardProps {
@@ -101,12 +107,24 @@ function Board(props: BoardProps) {
             if (selected == squareId) {
                 squareState = "selected";
             } else if (targetSquares[squareId]) {
-                if (props.pieceMap[squareId] && (props.pieceMap[squareId].color === (props.playerIsWhite ? 'b' : 'w'))) {
+                if (props.pieceMap[squareId] &&
+                    (props.pieceMap[squareId].color === (props.playerIsWhite ? 'b' : 'w'))) {
                     squareState = "attackable";
                 } else {
                     squareState = "target";
                 }
             }
+
+            let moves = props.chess.history({ verbose: true });
+            if (moves.length > 0) {
+                let move = moves[moves.length - 1];
+                if ((move.from as string) === (algebraic(squareId))) {
+                    squareState = "fromsquare";
+                } else if ((move.to as string) === (algebraic(squareId))) {
+                    squareState = "tosquare";
+                }
+            }
+
             squares.push(
                 <BoardSquare key={squareId}
                     squareId={squareId}
@@ -119,22 +137,40 @@ function Board(props: BoardProps) {
     }
 
     let pieces: JSX.Element[] = [];
+    let moves = props.chess.history({ verbose: true });
     for (let squareId in props.pieceMap) {
         let piece = props.pieceMap[squareId];
         let i = piece.squareId >> 4;
         let j = piece.squareId & 0xf;
-        let styles: React.CSSProperties = {
-            left: ((props.playerIsWhite ? j : 7 - j) * 80) + 'px',
-            top: ((props.playerIsWhite ? i : 7 - i) * 80) + 'px',
+        let target: any = {
+            x: ((props.playerIsWhite ? j : 7 - j) * 80) + 'px',
+            y: ((props.playerIsWhite ? i : 7 - i) * 80) + 'px',
         };
+        let initial = target;
+        if (moves.length > 0) { // animate
+            let move = moves[moves.length - 1];
+            if ((move.to as string) === algebraic(piece.squareId)) {
+                console.log(move.from);
+                let from = tosquareid(move.from as string);
+                i = from >> 4;
+                j = from & 0xf;
+                console.log(from, i, j);
+                initial = {
+                    x: ((props.playerIsWhite ? j : 7 - j) * 80) + 'px',
+                    y: ((props.playerIsWhite ? i : 7 - i) * 80) + 'px',
+                }
+            }
+        }
+        let animate = target;
         pieces.push(
             <BoardPiece key={squareId}
                 squareId={piece.squareId}
                 symbol={piece.symbol}
                 color={piece.color}
                 playerIsWhite={true}
-                styles={styles}
                 handleClick={handleClick}
+                initial={initial}
+                animate={animate}
             />
         );
     }
