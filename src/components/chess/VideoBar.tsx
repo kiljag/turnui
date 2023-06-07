@@ -33,15 +33,20 @@ function VideoBar(props: VideoBarProps) {
     return (
         <div className="video-area align-middle items-center rounded-xl">
             <div className="flex align-center justify-center max-w-md gap-2 m-auto">
+
                 {props.activeLocalStream ? (
-                    <div className="w-48 h-36 m-2">
-                        <video className="h-full w-full" ref={localRef} autoPlay playsInline muted />
+                    <div className="rounded-xl bg-gray-950">
+                        <div className="h-36 w-52 rounded-3xl m-auto mt-1 mb-1">
+                            <video className="h-full w-full border-black rounded-2xl" ref={localRef} autoPlay playsInline muted />
+                        </div>
                     </div>
                 ) : null}
 
                 {props.activeRemoteStream ? (
-                    <div className="w-48 h-36 m-2">
-                        <video className="h-full w-full" ref={remoteRef} autoPlay playsInline muted />
+                    <div className="rounded-xl bg-gray-950">
+                        <div className="h-36 w-52 rounded-3xl  m-auto mt-1 mb-1">
+                            <video className="h-full w-full border-black rounded-2xl" ref={remoteRef} autoPlay playsInline />
+                        </div>
                     </div>
                 ) : null}
 
