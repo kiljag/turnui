@@ -1,8 +1,8 @@
 
 import { ChessState } from "@/lib/chess/slice";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
-import { chessInfo } from "@/lib/chess/wsocket";
+import app from '@/lib/chess/app';
 
 interface VideoBarProps {
     activeLocalStream: boolean;
@@ -18,15 +18,28 @@ const mapStateToProps = function (state: ChessState) {
 
 function VideoBar(props: VideoBarProps) {
 
+    let videoRef = useRef<HTMLVideoElement>();
     const localRef = useRef<HTMLVideoElement>(null);
     const remoteRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        if (localRef.current && props.activeLocalStream) {
-            localRef.current.srcObject = chessInfo.localStream;
+        if (localRef.current) {
+            if (props.activeLocalStream) {
+                localRef.current.srcObject = app.localStream;
+            } else {
+                localRef.current.srcObject = null;
+            }
+            videoRef.current = localRef.current;
         }
+
         if (remoteRef.current && props.activeRemoteStream) {
-            remoteRef.current.srcObject = chessInfo.remoteStream;
+            remoteRef.current.srcObject = app.remoteStream;
+        }
+
+        return () => {
+            if (videoRef.current) {
+                videoRef.current.srcObject = null;
+            }
         }
     }, [props]);
 
@@ -34,13 +47,11 @@ function VideoBar(props: VideoBarProps) {
         <div className="video-area align-middle items-center rounded-xl">
             <div className="flex align-center justify-center max-w-md gap-2 m-auto">
 
-                {props.activeLocalStream ? (
-                    <div className="rounded-xl bg-gray-950">
-                        <div className="h-36 w-52 rounded-3xl m-auto mt-1 mb-1">
-                            <video className="h-full w-full border-black rounded-2xl" ref={localRef} autoPlay playsInline muted />
-                        </div>
+                <div className="rounded-xl bg-gray-950">
+                    <div className="h-36 w-52 rounded-3xl m-auto mt-1 mb-1">
+                        <video className="h-full w-full border-black rounded-2xl" ref={localRef} autoPlay playsInline muted />
                     </div>
-                ) : null}
+                </div>
 
                 {props.activeRemoteStream ? (
                     <div className="rounded-xl bg-gray-950">

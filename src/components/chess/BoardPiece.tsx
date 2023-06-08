@@ -21,7 +21,7 @@ export default function BoardPiece(props: BoardPieceProps) {
             onClick={() => props.handleClick(props.squareId)}
             initial={props.initial}
             animate={props.animate}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.5 }}
         >
         </motion.div>
     );

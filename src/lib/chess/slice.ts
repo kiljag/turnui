@@ -1,11 +1,11 @@
-import { Chess, Piece } from 'chess.js';
-import { PieceMap, getPieceMap } from './piece';
+import { Chess } from 'chess.js';
 import { createSlice } from '@reduxjs/toolkit';
 
-type BoardState = "init" | "creating" | "playing" | "gameover" | "waiting" | "error";
+type BoardState = "init" | "creating" | "joining" | "playing" | "gameover" | "waiting" | "error";
 
 export interface ChatMessage {
     chatId: number,
+    userId: string,
     message: string,
 }
 
@@ -17,9 +17,7 @@ export interface ChessState {
     roomCreated: boolean,
 
     // board info
-    chess: Chess,
     chessMoves: string[],
-    pieceMap: PieceMap,
 
     boardState: BoardState,
     playerId: string,
@@ -36,18 +34,13 @@ export interface ChessState {
     chatMessages: ChatMessage[],
 }
 
-let chess = new Chess();
-
 const initialState: ChessState = {
     // room info
     sessionId: "",
     roomId: "",
     isHost: false,
     roomCreated: false,
-
-    chess: chess,
     chessMoves: [],
-    pieceMap: {},
 
     boardState: "init",
     playerId: "",
@@ -58,7 +51,6 @@ const initialState: ChessState = {
 
     activeLocalStream: false,
     activeRemoteStream: false,
-
     chatMessages: [],
 }
 
@@ -95,21 +87,19 @@ const chessSlice = createSlice({
         },
 
         reduceStartGame: (state, action) => {
-            let chess = new Chess();
-            state.chess = chess;
-            state.pieceMap = getPieceMap(chess);
-            state.chessMoves = [];
-            state.isPlayerTurn = state.playerIsWhite;
-            state.boardState = 'playing';
+            return {
+                ...state,
+                chessMoves: [],
+                isPlayerTurn: state.isPlayerTurn,
+                boardState: 'playing',
+            }
         },
 
         reduceChessMove: (state, action) => {
             let payload = action.payload;
-            let isPlayerTurn = (state.playerIsWhite === (state.chess.turn() === 'w'));
             return {
                 ...state,
-                pieceMap: getPieceMap(state.chess as Chess),
-                isPlayerTurn: isPlayerTurn,
+                isPlayerTurn: state.playerIsWhite === (payload['turn'] === 'w'),
                 chessMoves: [...state.chessMoves, payload['move']],
             }
         },
@@ -125,10 +115,23 @@ const chessSlice = createSlice({
             }
         },
 
+        reduceJoining: (state, action) => {
+            return {
+                ...state,
+                boardState: 'joining',
+            }
+        },
+
         reduceError: (state, action) => {
-            let payload = action.payload;
-            state.boardState = 'error';
-            state.displayMessage = payload['message'];
+            const payload = action.payload;
+            return {
+                ...state,
+                boardState: 'error',
+                displayMessage: payload['message'],
+                chessMoves: [],
+                chatMessages: [],
+                roomCreated: false,
+            }
         },
 
         reduceClear: (state) => {
@@ -151,6 +154,7 @@ const chessSlice = createSlice({
             const payload = action.payload;
             const item: ChatMessage = {
                 chatId: payload['chatId'],
+                userId: payload['userId'],
                 message: payload['message'],
             };
             let chatMessages = state.chatMessages.concat(item);
@@ -161,17 +165,19 @@ const chessSlice = createSlice({
         },
 
         // streams
-        reduceLocalStream: (state) => {
+        reduceLocalStream: (state, action) => {
+            const isActive = action.payload['isActive'];
             return {
                 ...state,
-                activeLocalStream: true,
+                activeLocalStream: isActive,
             }
         },
 
-        reduceRemoteStream: (state) => {
+        reduceRemoteStream: (state, action) => {
+            const isActive = action.payload['isActive'];
             return {
                 ...state,
-                activeRemoteStream: true,
+                activeRemoteStream: isActive,
             }
         }
     }
@@ -179,7 +185,7 @@ const chessSlice = createSlice({
 
 export const {
     reduceRoomInfo, reduceRoomCreated, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
-    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage,
+    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage, reduceJoining,
 } = chessSlice.actions;
 
 export default chessSlice;

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { ChessState, reduceClear } from "@/lib/chess/slice";
-import { createChessRoom, joinChessRoom, playChessAgain } from '@/lib/chess/wsocket';
+import app from '@/lib/chess/app';
 
 interface ChessModalProps {
     boardState: string,
@@ -22,9 +22,7 @@ const mapStateToProps = function (state: ChessState) {
 
 function ChessModal(props: ChessModalProps) {
 
-    const [joining, setJoining] = useState(false);
     const [roomId, setRoomId] = useState("");
-    const dispatch = useDispatch();
 
     let children: any = null;
 
@@ -38,49 +36,28 @@ function ChessModal(props: ChessModalProps) {
     }
 
     function handleJoinClick() {
-        console.log('joining room ', roomId);
-        setJoining(true);
+        app.dispatchJoining({});
     }
 
     // async calls
     function handleCreate() {
-        console.log('creating room');
-        createChessRoom();
+        app.createChessRoom();
     }
 
     function handleJoin() {
-        console.log('about to join');
-        joinChessRoom(roomId);
+        app.joinChessRoom(roomId);
     }
 
     function handlePlayAgain() {
-        console.log('play again..');
-        playChessAgain();
+        app.playChessAgain();
     }
 
     function handleExit() {
-        console.log('exit/clear');
-        dispatch(reduceClear());
+        app.leaveChessRoom();
     }
 
-    if (joining) { // propmt the player to enter roomid
-        children = (
-            <div className="p-4">
-                <textarea className="h-20 w-full 
-                    bg-transparent border-white border-2 text-white
-                    text-xl text-center pt-6
-                    "
-                    placeholder="Enter room id here"
-                    onChange={handleRoomIdChange}
-                />
-                <button className="h-10 w-20 border-white border-2 mt-4"
-                    onClick={handleJoin}
-                > JOIN
-                </button>
-            </div>
-        );
 
-    } else if (props.boardState === "init") {
+    if (props.boardState === "init") {
         children = (
             <div className="p-4" >
                 <span className="mr-4">
@@ -112,6 +89,23 @@ function ChessModal(props: ChessModalProps) {
                 <button className="h-10 w-20 border-white border-2 mt-4"
                     onClick={handleExit}
                 > EXIT
+                </button>
+            </div>
+        );
+
+    } else if (props.boardState === "joining") {
+        children = (
+            <div className="p-4">
+                <textarea className="h-20 w-full 
+                    bg-transparent border-white border-2 text-white
+                    text-xl text-center pt-6
+                    "
+                    placeholder="Enter room id here"
+                    onChange={handleRoomIdChange}
+                />
+                <button className="h-10 w-20 border-white border-2 mt-4"
+                    onClick={handleJoin}
+                > JOIN
                 </button>
             </div>
         );
@@ -158,14 +152,16 @@ function ChessModal(props: ChessModalProps) {
     } else if (props.boardState === "error") {
         children = (
             <div className="p-4">
-                <div className="text-sm">
+                <div className="text-white">
                     {props.displayMessage || "Error connecting to server"}
                 </div>
-                <button className="h-10 w-20 text-sm bg-red text-white"
-                    onClick={handleExit}
-                >
-                    CLOSE
-                </button>
+                <div className="pt-4">
+                    <button className="h-10 w-20 text-sm border-white border-2 text-white"
+                        onClick={handleExit}
+                    >
+                        CLOSE
+                    </button>
+                </div>
             </div>
         );
     }

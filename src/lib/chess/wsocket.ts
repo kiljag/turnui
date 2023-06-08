@@ -8,7 +8,6 @@ import {
 import {
     playMoveSelf, playCaptureSound,
 } from './sounds';
-import { Chess } from 'chess.js';
 
 let WS_HOST = process.env['NEXT_PUBLIC_WS_HOST'] as string
 console.log('wsHost: ', WS_HOST);
@@ -104,7 +103,7 @@ async function createPeerConnection() {
 
         chessInfo.peerConnection = peerConnection;
         chessInfo.remoteStream = remoteStream;
-        store.dispatch(reduceRemoteStream());
+        store.dispatch(reduceRemoteStream({}));
 
     } catch (err) {
         console.error('error in creating peer connection');
@@ -244,13 +243,13 @@ function onmessage(event: any) {
                 let move = payload['move'];
                 let state = store.getState();
                 try {
-                    let chessMove = state.chess.move(move);
-                    store.dispatch(reduceChessMove(payload));
-                    if (chessMove.captured) {
-                        playCaptureSound();
-                    } else {
-                        playMoveSelf();
-                    }
+                    // let chessMove = state.chess.move(move);
+                    // store.dispatch(reduceChessMove(payload));
+                    // if (chessMove.captured) {
+                    //     playCaptureSound();
+                    // } else {
+                    //     playMoveSelf();
+                    // }
                 } catch (error) {
                     console.log('error in making move : ', move);
                     store.dispatch(reduceError({
@@ -305,7 +304,7 @@ export async function setupLocalStream() {
     try {
         chessInfo.localStream = await initializeLocalStream();
         console.log('initialized localstream');
-        store.dispatch(reduceLocalStream());
+        store.dispatch(reduceLocalStream({}));
     } catch (error) {
         console.log('failed to initialize localstream', error);
     }

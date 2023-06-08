@@ -6,7 +6,6 @@ interface BoardSquareProps {
     squareId: number,
     playerIsWhite: boolean,
     squareState: SquareState,
-
     handleClick: (sqaureId: number) => void,
 }
 
@@ -21,9 +20,15 @@ function algebraic(squareId: number): string {
 export default function BoardSquare(props: BoardSquareProps) {
 
     let children: any = null;
-    if (props.squareState === "selected") {
+    if (props.squareState === "ischeck") {
         children = (
-            <div className="h-full w-full bg-green-500 opacity-5">
+            <div className="h-full w-full bg-red-500">
+            </div>
+        )
+    }
+    else if (props.squareState === "selected") {
+        children = (
+            <div className="h-full w-full bg-green-600">
             </div>
         )
     } else if (props.squareState === "target") {
@@ -44,11 +49,6 @@ export default function BoardSquare(props: BoardSquareProps) {
     } else if (props.squareState === "tosquare") {
         children = (
             <div className="h-full w-full bg-green-400">
-            </div>
-        )
-    } else if (props.squareState === "ischeck") {
-        children = (
-            <div className="h-full w-full bg-red-600 bg-gradient-radial">
             </div>
         )
     }

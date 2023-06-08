@@ -1,7 +1,11 @@
 import { ChatMessage, ChessState } from "@/lib/chess/slice";
-import { SyntheticEvent, useState } from "react";
+import { useState } from "react";
 import { connect } from "react-redux";
-import { sendChatMessage } from "@/lib/chess/wsocket";
+import app from "@/lib/chess/app";
+import Image from "next/image";
+
+import whitePawn from '@/assets/sprites/wp.png';
+import blackPawn from '@/assets/sprites/bp.png';
 
 interface ChatBoxProps {
     roomCreated: boolean,
@@ -11,18 +15,17 @@ interface ChatBoxProps {
 const mapStateToProps = function (state: ChessState) {
     return {
         roomCreated: state.roomCreated,
-        chatMessages: state.chatMessages
+        chatMessages: state.chatMessages,
     }
 }
 
 function ChatBox(props: ChatBoxProps) {
 
     const [message, setMessage] = useState<string>("");
-    console.log('message: ', message);
 
     function sendMessage() {
         if (message !== undefined && message !== "") {
-            sendChatMessage(message);
+            app.sendChatMessage(message);
             setMessage("");
         }
     }
@@ -44,8 +47,13 @@ function ChatBox(props: ChatBoxProps) {
     for (let i = props.chatMessages.length - 1; i >= 0; i--) {
         children.push(
             <div key={props.chatMessages[i].chatId}
-                className="mb-2 p-2 text-base text-white bg-gray-800 rounded-xl">
-                {props.chatMessages[i].message}
+                className="flex flex-row items-center mb-2 p-2 bg-gray-800 rounded-xl">
+                <div className="h-10 w-10 shrink-0">
+                    <Image src={app.userId == props.chatMessages[i].userId ? whitePawn : blackPawn} alt="uer-avatar" />
+                </div>
+                <div className="text-base text-white">
+                    {props.chatMessages[i].message}
+                </div>
             </div>
         );
     }
