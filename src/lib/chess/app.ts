@@ -449,7 +449,7 @@ class App {
 
     // state machine
     onmessage(event: any) {
-        // console.log('received : ', event.data);
+        console.log('received : ', event.data);
         try {
             const message = JSON.parse(event.data);
             const type = message['type'];
