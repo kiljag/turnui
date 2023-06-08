@@ -110,15 +110,13 @@ function Board(props: BoardProps) {
             }
             let squareState: SquareState = "empty";
 
-            if (selected == squareId) {
-                squareState = "selected";
-            } else if (targetSquares[squareId]) {
-                if (pieceMap[squareId] &&
-                    (pieceMap[squareId].color === (props.playerIsWhite ? 'b' : 'w'))) {
-                    squareState = "attackable";
-
-                } else {
-                    squareState = "target";
+            let moves = app.chess.history({ verbose: true });
+            if (moves.length > 0) {
+                let move = moves[moves.length - 1];
+                if ((move.from as string) === (algebraic(squareId))) {
+                    squareState = "fromsquare";
+                } else if ((move.to as string) === (algebraic(squareId))) {
+                    squareState = "tosquare";
                 }
             }
 
@@ -129,13 +127,15 @@ function Board(props: BoardProps) {
                 }
             }
 
-            let moves = app.chess.history({ verbose: true });
-            if (moves.length > 0) {
-                let move = moves[moves.length - 1];
-                if ((move.from as string) === (algebraic(squareId))) {
-                    squareState = "fromsquare";
-                } else if ((move.to as string) === (algebraic(squareId))) {
-                    squareState = "tosquare";
+            if (selected == squareId) {
+                squareState = "selected";
+            } else if (targetSquares[squareId]) {
+                if (pieceMap[squareId] &&
+                    (pieceMap[squareId].color === (props.playerIsWhite ? 'b' : 'w'))) {
+                    squareState = "attackable";
+
+                } else {
+                    squareState = "target";
                 }
             }
 

@@ -1,4 +1,5 @@
 import { Piece } from "chess.js";
+import classNames from "classnames";
 
 export type SquareState = "empty" | "selected" | "target" | "attackable" | "fromsquare" | "tosquare" | "ischeck";
 
@@ -19,39 +20,18 @@ function algebraic(squareId: number): string {
 
 export default function BoardSquare(props: BoardSquareProps) {
 
-    let children: any = null;
-    if (props.squareState === "ischeck") {
-        children = (
-            <div className="h-full w-full bg-red-500">
-            </div>
-        )
-    }
-    else if (props.squareState === "selected") {
-        children = (
-            <div className="h-full w-full bg-green-600">
-            </div>
-        )
-    } else if (props.squareState === "target") {
-        children = (
-            <div className="h-full w-full square-target">
-            </div>
-        )
-    } else if (props.squareState === "attackable") {
-        children = (
-            <div className="h-full w-full square-attackable">
-            </div>
-        )
-    } else if (props.squareState === "fromsquare") {
-        children = (
-            <div className="h-full w-full bg-yellow-400">
-            </div>
-        )
-    } else if (props.squareState === "tosquare") {
-        children = (
-            <div className="h-full w-full bg-green-400">
-            </div>
-        )
-    }
+    let children: any = (
+        <div className={
+            classNames('h-full w-full', {
+                'square-target': props.squareState === 'target',
+                'square-attackable': props.squareState === "attackable",
+                'bg-yellow-400': props.squareState === 'fromsquare',
+                'bg-green-400': props.squareState === 'tosquare',
+                'bg-red-500': props.squareState === 'ischeck',
+                'bg-green-600': props.squareState === 'selected',
+            })
+        } />
+    );
 
     return (
         <div className={`square ${algebraic(props.squareId)}`}
