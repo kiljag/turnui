@@ -4,11 +4,12 @@ import * as types from './types';
 import store from '../store';
 import {
     reduceRoomInfo, reduceRoomCreated, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
-    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage, reduceJoining,
+    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage, reduceJoining, reduceBoardInfo,
 } from './slice';
 import moveselfSound from '../..//assets/sounds/move-self.mp3'
 import captureSound from '../../assets/sounds/capture.mp3';
 import moveCheckSound from '../../assets/sounds/move-check.mp3';
+import { Board } from './board';
 
 const WS_HOST = process.env['NEXT_PUBLIC_WS_HOST'] as string
 console.log('wsHost: ', WS_HOST);
@@ -30,25 +31,6 @@ async function createConnection(wsHost: string): Promise<WebSocket> {
             console.log('error creating connection', err);
             reject(err);
         }
-    });
-}
-
-
-// initialize local stream
-async function initializeLocalStream(): Promise<MediaStream> {
-    return new Promise((resolve, reject) => {
-        const constraints = {
-            video: true,
-            audio: true,
-        }
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then((stream) => {
-                resolve(stream);
-            })
-            .catch((err) => {
-                console.error('error opening media devices :', err);
-                reject(err);
-            });
     });
 }
 
@@ -82,24 +64,19 @@ let errorMessage = {
 class App {
 
     chess: Chess;
+    board: Board;
     wsocket: WebSocket | null;
-    isActive: boolean; // check if the connection is active or not
-    userId: string;
-    localStream: MediaStream | null;
-    remoteStream: MediaStream | null;
-    peerConnection: RTCPeerConnection | null;
 
     constructor() {
         this.chess = new Chess();
+        this.board = new Board();
         this.wsocket = null;
-        this.isActive = false;
-        this.userId = "";
-        this.localStream = null;
-        this.remoteStream = null;
-        this.peerConnection = null;
 
         this.onmessage = this.onmessage.bind(this);
         this.onclose = this.onclose.bind(this);
+
+        // for now
+        this.board.init(true);
     }
 
     // redux dispatch methods
@@ -152,167 +129,108 @@ class App {
         store.dispatch(reduceChatMessage(payload));
     }
 
-    // webrtc related functions
-
-    async startLocalStream() {
-        try {
-            this.localStream = await initializeLocalStream();
-            this.dispatchLocalStream({
-                isActive: true,
-            });
-        } catch (err) {
-            console.error('error in starting local stream', err);
-        }
+    dispatchBoardInfo(payload: any) {
+        store.dispatch(reduceBoardInfo(payload));
     }
 
-    async closeLocalStream() {
-        try {
-            if (this.localStream !== null) {
-                console.log('stopping all tracks');
-                const tracks = this.localStream.getTracks();
-                console.log('num tracks ', tracks.length);
-                tracks.forEach(track => track.stop());
-
-                this.localStream.getTracks().forEach((track) => {
-                    this.localStream?.removeTrack(track);
-                });
-            }
-        } catch (err) {
-            console.error('error in clearing local stream', err);
-        }
-        this.dispatchLocalStream({
-            isActive: false,
-        });
+    onclose(event: any) {
+        console.log('connection closed');
     }
 
-    // initialize remote stream and peer connection
-
-    async createPeerConnection() {
+    // state machine
+    onmessage(event: any) {
+        console.log('received : ', event.data);
         try {
-            const configuration = {
-                'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]
-            }
-            let peerConnection = new RTCPeerConnection(configuration);
+            const message = JSON.parse(event.data);
+            const type = message['type'];
+            const payload = message['payload'];
 
-            // add local tracks to peer connection
-            if (this.localStream !== null) {
-                let localStream = this.localStream;
-                this.localStream.getTracks().forEach((track) => {
-                    peerConnection.addTrack(track, localStream);
-                });
-            }
+            switch (type) {
 
-            // set remote stream
-            let remoteStream = new MediaStream();
-            peerConnection.ontrack = async (event) => {
-                event.streams[0].getTracks().forEach((track) => {
-                    remoteStream.addTrack(track);
-                })
-            }
+                case types.TYPE_ROOM_INFO: {
+                    this.dispatchRoomInfo(payload);
+                    break;
+                }
 
-            this.peerConnection = peerConnection;
-            this.remoteStream = remoteStream;
-            this.dispatchRemoteStream({
-                isActive: true,
-            });
+                case types.TYPE_ROOM_CREATED: {
+                    // add to chess room
+                    setTimeout(() => {
+                        this.addToChessRoom();
+                    }, 500 + Math.floor(500 * Math.random()));
+                    this.dispatchRoomCreated(payload);
+                    break;
+                }
 
-        } catch (err) {
-            console.error('error in creating peer connection', err);
-        }
-    }
+                case types.TYPE_PLAYER_INFO: {
+                    this.dispatchPlayerInfo(payload);
+                    break;
+                }
 
-    // disconnect from peer
-    async closePeerConnection() {
-        if (this.peerConnection !== null) {
-            this.peerConnection.close();
-        }
+                case types.TYPE_START_GAME: {
+                    this.chess = new Chess();
+                    this.dispatchStartGame(payload);
+                    break;
+                }
 
-        this.dispatchRemoteStream({
-            isActive: false,
-        });
-    }
+                case types.TYPE_CHESS_MOVE: {
+                    let move = payload['move'];
+                    try {
+                        let chessMove = this.chess.move(move);
+                        payload['turn'] = this.chess.turn();
+                        this.dispatchChessMove(payload);
 
-    // listen for ice candidates and send them signalling server 
-    async setIceCandidateHandler() {
-        try {
-            if (this.peerConnection !== null) {
-                this.peerConnection.onicecandidate = async (event) => {
-                    if (event.candidate) {
-                        this.wsocket?.send(JSON.stringify({
-                            type: 'rtc_message',
-                            payload: {
-                                'sessionId': store.getState().sessionId,
-                                'roomId': store.getState().roomId,
-                                'ice': JSON.stringify(event.candidate),
-                            }
-                        }));
+                        // sound effects
+                        if (this.chess.isCheck()) {
+                            playMovecheck();
+                        } else if (chessMove.captured) {
+                            playCaptureSound();
+                        } else {
+                            playMoveSelf();
+                        }
+
+                    } catch (err) {
+                        console.error(`error in making move (${move}): `, err);
+                        this.dispatchError({
+                            message: 'unknown error occured',
+                        });
                     }
+                    break;
+                }
+
+                case types.TYPE_END_GAME: {
+                    this.disptachEndGame(payload);
+                    break;
+                }
+
+                case types.TYPE_CHAT_MESSAGE: {
+                    this.dispatchChatMessage(payload);
+                    break;
+                }
+
+                case types.TYPE_OPPONENT_LEFT: {
+                    this.dispatchError({
+                        message: 'opponent left the room',
+                    });
+                    break;
+                }
+
+                case types.TYPE_ROOM_IS_FULL: {
+                    this.dispatchError({
+                        message: 'room is full',
+                    })
+                }
+
+                default: {
+                    break;
                 }
             }
 
         } catch (err) {
-            console.error('error in setting ice candidate handler', err);
+            console.error('error in processing response', err);
         }
     }
 
-    // create offer and send it to signalling server
-    async createSDPOffer() {
-        try {
-            await this.createPeerConnection();
-            const offer = await this.peerConnection?.createOffer();
-            this.peerConnection?.setLocalDescription(offer);
-            this.wsocket?.send(JSON.stringify({
-                type: 'rtc_message',
-                payload: {
-                    'sessionId': store.getState().sessionId,
-                    'roomId': store.getState().roomId,
-                    'offer': JSON.stringify(offer),
-                }
-            }));
-            this.setIceCandidateHandler();
-
-        } catch (err) {
-            console.error('error in creating sdp offer', err);
-        }
-    }
-
-    // process offer, create answer and send it to signalling server
-    async createSDPAnswer(offer: string) {
-        try {
-            await this.createPeerConnection();
-            this.peerConnection?.setRemoteDescription(JSON.parse(offer));
-            const answer = await this.peerConnection?.createAnswer();
-            this.peerConnection?.setLocalDescription(answer);
-            this.wsocket?.send(JSON.stringify({
-                type: 'rtc_message',
-                payload: {
-                    'sessionId': store.getState().sessionId,
-                    'roomId': store.getState().roomId,
-                    'answer': JSON.stringify(answer),
-                }
-            }));
-            this.setIceCandidateHandler();
-
-        } catch (err) {
-            console.error('error in creating sdp answer', err);
-        }
-    }
-
-    async handleSDPAnswer(answer: string) {
-        try {
-            this.peerConnection?.setRemoteDescription(JSON.parse(answer));
-        } catch (err) {
-            console.error('error in handling sdp answer', err);
-        }
-    }
-
-    async handleIceCandidate(ice: string) {
-        try {
-            let candidate = JSON.parse(ice);
-            this.peerConnection?.addIceCandidate(new RTCIceCandidate(candidate));
-        } catch (err) {
-            console.error('error handling ice candidate', err);
-        }
+    async initialize() {
     }
 
     async createWSConnection() {
@@ -325,7 +243,6 @@ class App {
         try {
             console.error(err);
             this.dispatchError(errorMessage);
-            this.closePeerConnection();
         } catch (err) {
             console.error('error : ', err);
         }
@@ -411,7 +328,6 @@ class App {
                     sessionId: state.sessionId,
                     roomId: state.roomId,
                     message: message,
-                    userId: this.userId,
                 }
             }));
 
@@ -420,140 +336,35 @@ class App {
         }
     }
 
-    async leaveChessRoom() {
-        try {
-            this.closePeerConnection();
-            if (this.wsocket !== null) {
-                this.wsocket.close();
-                this.isActive = false;
-            }
-            this.dispatchClear({});
+    async handleClick(squareId: number) {
+        let boardInfo = this.board.handleClick(squareId);
+        if (boardInfo !== undefined) {
+            let squares = boardInfo.squares.map((s) => ({ ...s }));
+            let pieces = boardInfo.pieces.map((p) => ({ ...p }));
+            this.dispatchBoardInfo({
+                squares: squares,
+                pieces: pieces,
+            });
 
-        } catch (err) {
-            console.error('error in leaving room', err);
+            if (boardInfo.move !== undefined && boardInfo.move !== "") {
+
+
+            }
+        }
+        else {
+            console.log('received undefined');
         }
     }
 
-    // websocket close handler
-    onclose(event: any) {
-        console.log('websocket connection closed');
-        if (this.isActive) {
-            console.log('room is active');
-            this.dispatchError({
-                message: 'error connecting to server',
-            })
-            this.isActive = false;
-        }
-
-    }
-
-    // state machine
-    onmessage(event: any) {
-        console.log('received : ', event.data);
-        try {
-            const message = JSON.parse(event.data);
-            const type = message['type'];
-            const payload = message['payload'];
-
-            switch (type) {
-
-                case types.TYPE_ROOM_INFO: {
-                    this.isActive = true;
-                    this.dispatchRoomInfo(payload);
-                    break;
-                }
-
-                case types.TYPE_ROOM_CREATED: {
-                    // add to chess room
-                    setTimeout(() => {
-                        this.addToChessRoom();
-                    }, 500 + Math.floor(500 * Math.random()));
-                    this.userId = Math.floor(100000 * Math.random()).toString();
-                    this.dispatchRoomCreated(payload);
-
-                    // start rtc peer connection
-                    if (store.getState().isHost) {
-                        this.createSDPOffer();
-                    }
-                    break;
-                }
-
-                case types.TYPE_PLAYER_INFO: {
-                    this.dispatchPlayerInfo(payload);
-                    break;
-                }
-
-                case types.TYPE_START_GAME: {
-                    this.chess = new Chess();
-                    this.dispatchStartGame(payload);
-                    break;
-                }
-
-                case types.TYPE_CHESS_MOVE: {
-                    let move = payload['move'];
-                    try {
-                        let chessMove = this.chess.move(move);
-                        payload['turn'] = this.chess.turn();
-                        this.dispatchChessMove(payload);
-
-                        // sound effects
-                        if (this.chess.isCheck()) {
-                            playMovecheck();
-                        } else if (chessMove.captured) {
-                            playCaptureSound();
-                        } else {
-                            playMoveSelf();
-                        }
-
-                    } catch (err) {
-                        console.error(`error in making move (${move}): `, err);
-                        this.dispatchError({
-                            message: 'unknown error occured',
-                        });
-                    }
-                    break;
-                }
-
-                case types.TYPE_END_GAME: {
-                    this.disptachEndGame(payload);
-                    break;
-                }
-
-                case types.TYPE_RTC_MESSAGE: {
-                    let offer = payload['offer'];
-                    let answer = payload['answer'];
-                    let ice = payload['ice'];
-
-                    if (offer !== undefined) {
-                        this.createSDPAnswer(offer);
-                    } else if (answer !== undefined) {
-                        this.handleSDPAnswer(answer);
-                    } else if (ice !== undefined) {
-                        this.handleIceCandidate(ice);
-                    }
-                    break;
-                }
-
-                case types.TYPE_CHAT_MESSAGE: {
-                    this.dispatchChatMessage(payload);
-                    break;
-                }
-
-                case types.TYPE_OPPONENT_LEFT: {
-                    this.dispatchError({
-                        message: 'opponent left the room',
-                    });
-                    break;
-                }
-
-                default: {
-                    break;
-                }
-            }
-
-        } catch (err) {
-            console.error('error in processing response', err);
-        }
+    async testInit() {
+        this.board = new Board();
+        let boardInfo = this.board.init(true);
+        let squares = boardInfo.squares.map((s) => ({ ...s }));
+        let pieces = boardInfo.pieces.map((p) => ({ ...p }));
+        this.dispatchBoardInfo({
+            squares: squares,
+            pieces: pieces,
+        });
     }
 }
 

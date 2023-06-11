@@ -1,7 +1,10 @@
 import { Chess } from 'chess.js';
 import { createSlice } from '@reduxjs/toolkit';
+import { BoardInfo, ChessPiece, ChessSquare } from './board';
 
-type BoardState = "init" | "creating" | "joining" | "playing" | "gameover" | "waiting" | "error";
+type BoardState = "init" |
+    "creating" |
+    "joining" | "playing" | "gameover" | "waiting" | "error";
 
 export interface ChatMessage {
     chatId: number,
@@ -10,6 +13,7 @@ export interface ChatMessage {
 }
 
 export interface ChessState {
+
     // room info
     sessionId: string,
     roomId: string,
@@ -32,6 +36,10 @@ export interface ChessState {
 
     // chats
     chatMessages: ChatMessage[],
+
+    // boardInfo
+    squares: ChessSquare[],
+    pieces: ChessPiece[],
 }
 
 const initialState: ChessState = {
@@ -52,12 +60,24 @@ const initialState: ChessState = {
     activeLocalStream: false,
     activeRemoteStream: false,
     chatMessages: [],
+
+    // boardInfo
+    squares: [],
+    pieces: [],
 }
 
 const chessSlice = createSlice({
     name: 'chess',
     initialState: initialState,
     reducers: {
+
+        reduceBoardInfo(state, action) {
+            return {
+                ...state,
+                squares: action.payload.squares,
+                pieces: action.payload.pieces,
+            }
+        },
 
         // websocket responses
         reduceRoomInfo: (state, action) => {
@@ -185,7 +205,7 @@ const chessSlice = createSlice({
 
 export const {
     reduceRoomInfo, reduceRoomCreated, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
-    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage, reduceJoining,
+    reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage, reduceJoining, reduceBoardInfo,
 } = chessSlice.actions;
 
 export default chessSlice;

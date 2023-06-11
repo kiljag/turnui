@@ -6,22 +6,61 @@
   --square-len: min(8vh, 8vw);
 }
 
-/* .flex-container {
-  display: flex;
-  justify-content: space-between;
+.board-container {
+  width: calc(8 * var(--square-len));
+  height: calc(8 * var(--square-len));
 }
 
-.flex-container > div {
-  flex-grow: 1;
-  flex-basis: 0;
+.board-black {
+  background-image: url('../assets/board/black-board.svg');
+  background-size: 100%;
 }
 
-.flex-container > div:nth-child(2) {
-  flex-grow: 0;
-  flex-basis: auto;
-  justify-content: center;
-  display: flex;
-} */
+.board-white {
+  background-image: url('../assets/board/white-board.svg');
+  background-size: 100%;
+}
+
+.square-container {
+  width: var(--square-len);
+  height: var(--square-len);
+}
+
+.piece-container {
+  width: var(--square-len);
+  height: var(--square-len);
+
+  transition: top 0.5s, left 0.5s;
+  -moz-transition: top 0.5s, left 0.5s; 
+  -webkit-transition:top 0.5s, left 0.5s; 
+  -o-transition: top 0.5s, left 0.5s;
+}
+
+.square-target {
+  background-image: url('../assets/board/square-target.svg');
+  background-size: 100%;
+}
+
+.square-attackable {
+  background-image: url('../assets/board/square-attackable.svg');
+  background-size: 100%;
+}
+
+.square-is-from {
+  background-color: yellowgreen;
+}
+
+.square-is-to {
+  background-color: yellowgreen;
+}
+
+.square-is-check {
+  background-color: red;
+}
+
+.square-selected {
+  background-color: green;
+}
 
 .video-area {
   width: 680px;
@@ -58,7 +97,7 @@
   display: none;
 }
 
-.board-root {
+/* .board-root {
   width: 680px;
   height: 680px;
   margin: auto;
@@ -67,12 +106,8 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 10px;
-}
+} */
 
-.board-container {
-  width: 640px;
-  height: 640px;
-}
 
 .instruction-modal {
   position: absolute;
@@ -88,39 +123,11 @@
 }
 
 .board {
-  position: relative;
+  
   width: 640px;
   height: 640px;
-  display: grid;
-  grid-template-rows: repeat(8, 80px);
-  grid-template-columns: repeat(8, 80px);
   border: 1px solid black;
   box-sizing: content-box;
-}
-
-.board-black {
-  background-image: url('../assets/board/black-board.svg');
-  background-size: 100%;
-}
-
-.board-white {
-  background-image: url('../assets/board/white-board.svg');
-  background-size: 100%;
-}
-
-.square {
-  width: 80px;
-  height: 80px;
-}
-
-.square-target {
-  background-image: url('../assets/board/square-target.svg');
-  background-size: 100%;
-}
-
-.square-attackable {
-  background-image: url('../assets/board/square-attackable.svg');
-  background-size: 100%;
 }
 
 .piece {

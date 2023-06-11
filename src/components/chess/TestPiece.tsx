@@ -3,14 +3,15 @@
 import { Color, PieceSymbol } from "chess.js";
 import { motion } from 'framer-motion';
 
-interface BoardPieceProps {
+interface TestPieceProps {
     squareId: number,
     symbol: PieceSymbol,
     color: Color,
+    playerIsWhite: boolean,
     handleClick: (squareId: number) => void,
 }
 
-export default function BoardPiece(props: BoardPieceProps) {
+export default function TestPiece(props: TestPieceProps) {
 
     return (
         <div
