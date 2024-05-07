@@ -1,27 +1,18 @@
+'use client';
 
 import { useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { ChessState, reduceClear } from "@/lib/chess/slice";
-import app from '@/lib/chess/app';
+import { ChessState, reduceClear, selectBoardState, selectDisplayMessage, selectPlayerHasWon, selectRoomId } from "../redux/chessSlice";
+import app from '../lib/chess/app';
+import { useAppSelector } from "../redux/hooks";
 
-interface ChessModalProps {
-    boardState: string,
-    displayMessage: string,
-    roomId: string,
-    playerHasWon: boolean,
-}
 
-const mapStateToProps = function (state: ChessState) {
-    return {
-        boardState: state.boardState,
-        displayMessage: state.displayMessage,
-        roomId: state.roomId,
-        playerHasWon: state.playerHasWon,
-    }
-}
+export default function ChessModal() {
 
-function ChessModal(props: ChessModalProps) {
-
+    const boardState = useAppSelector(selectBoardState);
+    const displayMessage = useAppSelector(selectDisplayMessage);
+    const chessRoomId = useAppSelector(selectRoomId);
+    const playerHasWon = useAppSelector(selectPlayerHasWon);
     const [roomId, setRoomId] = useState("");
 
     let children: any = null;
@@ -57,7 +48,7 @@ function ChessModal(props: ChessModalProps) {
     }
 
 
-    if (props.boardState === "init") {
+    if (boardState === "init") {
         children = (
             <div className="p-4" >
                 <span className="mr-4">
@@ -77,14 +68,15 @@ function ChessModal(props: ChessModalProps) {
             </div>
         );
 
-    } else if (props.boardState === "creating") {
+    } else if (boardState === "creating") {
+        console.log("board state : ", boardState);
         children = (
             <div className="p-4">
                 <div className="text-sm">
                     share the roomId with your friend
                 </div>
                 <div className="h-20 m-auto mt-2 border-2 border-white text-xl text-center pt-6">
-                    {props.roomId}
+                    {chessRoomId}
                 </div>
                 <button className="h-10 w-20 border-white border-2 mt-4"
                     onClick={handleExit}
@@ -93,7 +85,7 @@ function ChessModal(props: ChessModalProps) {
             </div>
         );
 
-    } else if (props.boardState === "joining") {
+    } else if (boardState === "joining") {
         children = (
             <div className="p-4">
                 <textarea className="h-20 w-full 
@@ -110,7 +102,7 @@ function ChessModal(props: ChessModalProps) {
             </div>
         );
 
-    } else if (props.boardState === "waiting") {
+    } else if (boardState === "waiting") {
         children = (
             <div className="p-4">
                 <div className="text-sm">
@@ -123,14 +115,14 @@ function ChessModal(props: ChessModalProps) {
             </div>
         );
 
-    } else if (props.boardState === "gameover") {
+    } else if (boardState === "gameover") {
         children = (
             <div className="p-4">
                 <div className="text-xl">
                     Game Over
                 </div>
                 <div className="p-4 text-sm">
-                    {props.displayMessage}
+                    {displayMessage}
                 </div>
                 <span className="mr-4">
                     <button className="h-10 w-40 border-white border-2"
@@ -149,11 +141,11 @@ function ChessModal(props: ChessModalProps) {
             </div>
         );
 
-    } else if (props.boardState === "error") {
+    } else if (boardState === "error") {
         children = (
             <div className="p-4">
                 <div className="text-white">
-                    {props.displayMessage || "Error connecting to server"}
+                    {displayMessage || "Error connecting to server"}
                 </div>
                 <div className="pt-4">
                     <button className="h-10 w-20 text-sm border-white border-2 text-white"
@@ -173,4 +165,3 @@ function ChessModal(props: ChessModalProps) {
     );
 }
 
-export default connect(mapStateToProps)(ChessModal);

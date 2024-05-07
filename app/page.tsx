@@ -1,7 +1,7 @@
-import ChessLogo from "@/components/home/ChessLogo";
+import ChessLogo from "./components/ChessLogo";
 import Image from "next/image";
 import Link from "next/link";
-import NavBar from "@/components/util/NavBar";
+import NavBar from "./components/NavBar";
 
 export default function Home() {
     return (

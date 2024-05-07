@@ -1,3 +1,5 @@
+'use client';
+
 import { Piece } from "chess.js";
 import classNames from "classnames";
 

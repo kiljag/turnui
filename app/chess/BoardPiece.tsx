@@ -1,4 +1,4 @@
-'useclient';
+'use client';
 
 import { Color, PieceSymbol } from "chess.js";
 import { motion } from 'framer-motion';

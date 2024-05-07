@@ -1,15 +1,15 @@
 'use client';
 
-import { PieceMap, getPieceMap } from '@/lib/chess/piece';
-import { Chess, Square } from 'chess.js';
+import { PieceMap, getPieceMap } from '../lib/chess/piece';
+import { Chess, Square, Move } from 'chess.js';
 import BoardPiece from './BoardPiece';
 import BoardSquare, { SquareState } from './BoardSquare';
-import { ChessState } from '@/lib/chess/slice';
+import { ChessState, selectBoardState, selectChessMoves, selectPlayerHasWon, selectPlayerIsWhite, selectRoomId } from '../redux/chessSlice';
 import { useState } from 'react';
-import { connect } from 'react-redux';
 import ChessModal from './ChessModal';
-import app from '@/lib/chess/app';
-import { init } from 'next/dist/compiled/@vercel/og/satori';
+import app from '../lib/chess/app';
+import { useAppSelector, useAppDispatch } from '../redux/hooks';
+
 
 // conver 0x88 squareId to algebraic notation
 function algebraic(squareId: number): string {
@@ -26,51 +26,45 @@ function tosquareid(id: string): number {
 }
 
 interface BoardProps {
-    chessMoves: string[],
-    playerIsWhite: boolean,
-    boardState: string,
-    roomId: string,
-    playerHasWon: boolean,
     handleMove: (from: string, to: string) => void,
-}
-
-const mapStateToProps = function (state: ChessState) {
-    return {
-        // chess: state.chess,
-        chessMoves: state.chessMoves,
-        playerIsWhite: state.playerIsWhite,
-        boardState: state.boardState,
-        roomId: state.roomId,
-        playerHasWon: state.playerHasWon,
-    }
 }
 
 function Board(props: BoardProps) {
 
+    const chessMoves = useAppSelector(selectChessMoves);
+    const playerIsWhite = useAppSelector(selectPlayerIsWhite);
+    const boardState = useAppSelector(selectBoardState);
+    const roomId = useAppSelector(selectRoomId);
+    const playerHasWon = useAppSelector(selectPlayerHasWon);
+
+    console.log("board state : ", boardState);
+
     const [selected, setSelected] = useState<number>(-1);
     const [targetSquares, setTargetSquares] = useState<{ [squareId: number]: boolean }>({});
     let pieceMap = getPieceMap(app.chess);
-    if (props.boardState !== "playing") {
+    if (boardState !== "playing") {
         pieceMap = {};
     }
 
     function handleClick(squareId: number) {
-        if (props.boardState !== "playing") {
+        if (boardState !== "playing") {
             console.error('board is not in playing state');
             return;
         }
 
         // player check
-        if (props.playerIsWhite !== (app.chess.turn() === 'w')) {
+        if (playerIsWhite !== (app.chess.turn() === 'w')) {
             return;
         }
 
         // check if the selected square is legal
         if (selected < 0) {
+            let square = algebraic(squareId);
+
             let isLegal = false;
-            let moves = app.chess._moves();
+            let moves  = app.chess.moves({verbose:true, square: square as Square });
             for (let i = 0; i < moves.length; i++) {
-                if (moves[i].from === squareId) {
+                if (moves[i].from === square as Square) {
                     isLegal = true;
                     break;
                 }
@@ -78,11 +72,13 @@ function Board(props: BoardProps) {
             if (!isLegal) return;
 
             // select the target squares for the selected piece
-            let square = algebraic(squareId);
-            let pieceMoves = app.chess._moves({ square: square as Square });
+            let pieceMoves = app.chess.moves({verbose: true, square: square as Square });
+            console.log("piece moves : ", pieceMoves);
             let targetSquares: { [squareId: number]: boolean } = {}
             for (let i = 0; i < pieceMoves.length; i++) {
-                targetSquares[pieceMoves[i].to] = true;
+                // TODO
+                let targetSquareId = tosquareid(pieceMoves[i].to);
+                targetSquares[targetSquareId] = true;
             }
             setSelected(squareId);
             setTargetSquares(targetSquares);
@@ -105,7 +101,7 @@ function Board(props: BoardProps) {
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             let squareId = (i << 4) | j;
-            if (!props.playerIsWhite) {
+            if (!playerIsWhite) {
                 squareId = ((7 - i) << 4) | (7 - j);
             }
             let squareState: SquareState = "empty";
@@ -131,7 +127,7 @@ function Board(props: BoardProps) {
                 squareState = "selected";
             } else if (targetSquares[squareId]) {
                 if (pieceMap[squareId] &&
-                    (pieceMap[squareId].color === (props.playerIsWhite ? 'b' : 'w'))) {
+                    (pieceMap[squareId].color === (playerIsWhite ? 'b' : 'w'))) {
                     squareState = "attackable";
 
                 } else {
@@ -158,8 +154,8 @@ function Board(props: BoardProps) {
         let i = piece.squareId >> 4;
         let j = piece.squareId & 0xf;
         let target: any = {
-            x: ((props.playerIsWhite ? j : 7 - j) * 80) + 'px',
-            y: ((props.playerIsWhite ? i : 7 - i) * 80) + 'px',
+            x: ((playerIsWhite ? j : 7 - j) * 80) + 'px',
+            y: ((playerIsWhite ? i : 7 - i) * 80) + 'px',
         };
         let initial = target;
 
@@ -177,8 +173,8 @@ function Board(props: BoardProps) {
                 i = from >> 4;
                 j = from & 0xf;
                 initial = {
-                    x: ((props.playerIsWhite ? j : 7 - j) * 80) + 'px',
-                    y: ((props.playerIsWhite ? i : 7 - i) * 80) + 'px',
+                    x: ((playerIsWhite ? j : 7 - j) * 80) + 'px',
+                    y: ((playerIsWhite ? i : 7 - i) * 80) + 'px',
                 }
             }
         }
@@ -199,8 +195,8 @@ function Board(props: BoardProps) {
     return (
         <div className='board-root bg-gray-900'>
             <div className='board-container bg-gray-800 m-auto'>
-                <div className={`board ${props.playerIsWhite ? 'board-white' : 'board-black'}`}>
-                    {props.boardState === 'playing' || <ChessModal />}
+                <div className={`board ${playerIsWhite ? 'board-white' : 'board-black'}`}>
+                    {boardState === 'playing' || <ChessModal />}
                     {squares}
                     {pieces}
                 </div>
@@ -209,4 +205,4 @@ function Board(props: BoardProps) {
     )
 }
 
-export default connect(mapStateToProps)(Board);
+export default Board;

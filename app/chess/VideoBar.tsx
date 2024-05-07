@@ -1,22 +1,16 @@
+'use client';
 
-import { ChessState } from "@/lib/chess/slice";
+import { ChessState, selectActiveLocalStream, selectActiveRemoteStream } from "@/app/redux/chessSlice";
 import React, { useEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
-import app from '@/lib/chess/app';
+import app from '@/app/lib/chess/app';
+import { useAppSelector } from "../redux/hooks";
 
-interface VideoBarProps {
-    activeLocalStream: boolean;
-    activeRemoteStream: boolean;
-}
 
-const mapStateToProps = function (state: ChessState) {
-    return {
-        activeLocalStream: state.activeLocalStream,
-        activeRemoteStream: state.activeRemoteStream,
-    }
-}
+export default function VideoBar() {
 
-function VideoBar(props: VideoBarProps) {
+    const activeLocalStream = useAppSelector(selectActiveLocalStream);
+    const activeRemoteStream = useAppSelector(selectActiveRemoteStream);
 
     let videoRef = useRef<HTMLVideoElement>();
     const localRef = useRef<HTMLVideoElement>(null);
@@ -24,7 +18,7 @@ function VideoBar(props: VideoBarProps) {
 
     useEffect(() => {
         if (localRef.current) {
-            if (props.activeLocalStream) {
+            if (activeLocalStream) {
                 localRef.current.srcObject = app.localStream;
             } else {
                 localRef.current.srcObject = null;
@@ -32,7 +26,7 @@ function VideoBar(props: VideoBarProps) {
             videoRef.current = localRef.current;
         }
 
-        if (remoteRef.current && props.activeRemoteStream) {
+        if (remoteRef.current && activeRemoteStream) {
             remoteRef.current.srcObject = app.remoteStream;
         }
 
@@ -41,7 +35,7 @@ function VideoBar(props: VideoBarProps) {
                 videoRef.current.srcObject = null;
             }
         }
-    }, [props]);
+    }, [activeLocalStream, activeRemoteStream]);
 
     return (
         <div className="video-area align-middle items-center rounded-xl">
@@ -53,7 +47,7 @@ function VideoBar(props: VideoBarProps) {
                     </div>
                 </div>
 
-                {props.activeRemoteStream ? (
+                {activeRemoteStream ? (
                     <div className="rounded-xl bg-gray-950">
                         <div className="h-36 w-52 rounded-3xl  m-auto mt-1 mb-1">
                             <video className="h-full w-full border-black rounded-2xl" ref={remoteRef} autoPlay playsInline />
@@ -65,5 +59,3 @@ function VideoBar(props: VideoBarProps) {
         </div>
     )
 }
-
-export default connect(mapStateToProps)(VideoBar);

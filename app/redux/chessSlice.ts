@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RootState, AppDispatch } from "./store";
 
 type BoardState = "init" | "creating" | "joining" | "playing" | "gameover" | "waiting" | "error";
 
@@ -61,6 +62,7 @@ const chessSlice = createSlice({
 
         // websocket responses
         reduceRoomInfo: (state, action) => {
+            console.log("room info action");
             const payload = action.payload;
             return {
                 ...state,
@@ -188,4 +190,15 @@ export const {
     reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage, reduceJoining,
 } = chessSlice.actions;
 
-export default chessSlice;
+export const selectChessMoves = (state: RootState) => state.chess.chessMoves;
+export const selectPlayerIsWhite = (state: RootState) => state.chess.playerIsWhite;
+export const selectBoardState = (state: RootState) => state.chess.boardState;
+export const selectRoomId = (state: RootState) => state.chess.roomId;
+export const selectRoomCreated = (state: RootState) => state.chess.roomCreated;
+export const selectDisplayMessage = (state: RootState) => state.chess.displayMessage;
+export const selectPlayerHasWon = (state: RootState) => state.chess.playerHasWon;
+export const selectChatMessages = (state: RootState) => state.chess.chatMessages;
+export const selectActiveLocalStream = (state: RootState) => state.chess.activeLocalStream;
+export const selectActiveRemoteStream = (state: RootState) => state.chess.activeRemoteStream;
+
+export default chessSlice.reducer;

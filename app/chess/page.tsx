@@ -1,8 +1,8 @@
 'use client';
 
-import ChessApp from "@/components/chess/ChessApp";
-import NavBar from "@/components/util/NavBar";
-import app from '@/lib/chess/app';
+import ChessApp from "@/app/chess/ChessApp";
+import app from '@/app/lib/chess/app';
+import NavBar from "@/app/components/NavBar";
 import { useEffect } from "react";
 
 export default function Home() {

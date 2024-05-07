@@ -1,14 +1,16 @@
 
 import { Chess } from 'chess.js';
 import * as types from './types';
-import store from '../store';
+import { store } from "@/app/redux/store";
+
 import {
     reduceRoomInfo, reduceRoomCreated, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
     reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage, reduceJoining,
-} from './slice';
-import moveselfSound from '../..//assets/sounds/move-self.mp3'
-import captureSound from '../../assets/sounds/capture.mp3';
-import moveCheckSound from '../../assets/sounds/move-check.mp3';
+} from '../../redux/chessSlice';
+
+import moveselfSound from '@/app/assets/sounds/move-self.mp3'
+import captureSound from '@/app/assets/sounds/capture.mp3';
+import moveCheckSound from '@/app/assets/sounds/move-check.mp3';
 
 const WS_HOST = process.env['NEXT_PUBLIC_WS_HOST'] as string
 console.log('wsHost: ', WS_HOST);
@@ -238,11 +240,12 @@ class App {
             if (this.peerConnection !== null) {
                 this.peerConnection.onicecandidate = async (event) => {
                     if (event.candidate) {
+                        let chessState = store.getState().chess;
                         this.wsocket?.send(JSON.stringify({
                             type: 'rtc_message',
                             payload: {
-                                'sessionId': store.getState().sessionId,
-                                'roomId': store.getState().roomId,
+                                'sessionId': chessState.sessionId,
+                                'roomId': chessState.roomId,
                                 'ice': JSON.stringify(event.candidate),
                             }
                         }));
@@ -261,11 +264,12 @@ class App {
             await this.createPeerConnection();
             const offer = await this.peerConnection?.createOffer();
             this.peerConnection?.setLocalDescription(offer);
+            let chessState = store.getState().chess;
             this.wsocket?.send(JSON.stringify({
                 type: 'rtc_message',
                 payload: {
-                    'sessionId': store.getState().sessionId,
-                    'roomId': store.getState().roomId,
+                    'sessionId': chessState.sessionId,
+                    'roomId': chessState.roomId,
                     'offer': JSON.stringify(offer),
                 }
             }));
@@ -283,11 +287,12 @@ class App {
             this.peerConnection?.setRemoteDescription(JSON.parse(offer));
             const answer = await this.peerConnection?.createAnswer();
             this.peerConnection?.setLocalDescription(answer);
+            let chessState = store.getState().chess;
             this.wsocket?.send(JSON.stringify({
                 type: 'rtc_message',
                 payload: {
-                    'sessionId': store.getState().sessionId,
-                    'roomId': store.getState().roomId,
+                    'sessionId': store.getState().chess.sessionId,
+                    'roomId': chessState.roomId,
                     'answer': JSON.stringify(answer),
                 }
             }));
@@ -370,8 +375,8 @@ class App {
             this.wsocket?.send(JSON.stringify({
                 type: types.TYPE_ADD_TO_ROOM,
                 payload: {
-                    sessionId: state.sessionId,
-                    roomId: state.roomId,
+                    sessionId: state.chess.sessionId,
+                    roomId: state.chess.roomId,
                 }
             }));
 
@@ -386,9 +391,9 @@ class App {
             this.wsocket?.send(JSON.stringify({
                 type: types.TYPE_MAKE_MOVE,
                 payload: {
-                    sessionId: state.sessionId,
-                    roomId: state.roomId,
-                    playerId: state.playerId,
+                    sessionId: state.chess.sessionId,
+                    roomId: state.chess.roomId,
+                    playerId: state.chess.playerId,
                     move: move,
                 },
             }));
@@ -408,8 +413,8 @@ class App {
             this.wsocket?.send(JSON.stringify({
                 type: types.TYPE_CHAT_MESSAGE,
                 payload: {
-                    sessionId: state.sessionId,
-                    roomId: state.roomId,
+                    sessionId: state.chess.sessionId,
+                    roomId: state.chess.roomId,
                     message: message,
                     userId: this.userId,
                 }
@@ -463,7 +468,7 @@ class App {
                     break;
                 }
 
-                case types.TYPE_ROOM_CREATED: {
+                case types.TYPE_ROOM_READY: {
                     // add to chess room
                     setTimeout(() => {
                         this.addToChessRoom();
@@ -472,7 +477,8 @@ class App {
                     this.dispatchRoomCreated(payload);
 
                     // start rtc peer connection
-                    if (store.getState().isHost) {
+                    let state = store.getState();
+                    if (state.chess.isHost) {
                         this.createSDPOffer();
                     }
                     break;

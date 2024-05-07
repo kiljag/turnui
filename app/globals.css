@@ -99,12 +99,12 @@
 }
 
 .board-black {
-  background-image: url('../assets/board/black-board.svg');
+  background-image: url('./assets/board/black-board.svg');
   background-size: 100%;
 }
 
 .board-white {
-  background-image: url('../assets/board/white-board.svg');
+  background-image: url('./assets/board/white-board.svg');
   background-size: 100%;
 }
 
@@ -114,12 +114,12 @@
 }
 
 .square-target {
-  background-image: url('../assets/board/square-target.svg');
+  background-image: url('./assets/board/square-target.svg');
   background-size: 100%;
 }
 
 .square-attackable {
-  background-image: url('../assets/board/square-attackable.svg');
+  background-image: url('./assets/board/square-attackable.svg');
   background-size: 100%;
 }
 
@@ -130,61 +130,61 @@
 }
 
 .piece-wp {
-  background-image: url('../assets/sprites/wp.png');
+  background-image: url('./assets/sprites/wp.png');
   background-size: 100%;
 }
 
 .piece-wr {
-  background-image: url('../assets/sprites/wr.png');
+  background-image: url('./assets/sprites/wr.png');
   background-size: 100%;
 }
 
 .piece-wn {
-  background-image: url('../assets/sprites/wn.png');
+  background-image: url('./assets/sprites/wn.png');
   background-size: 100%;
 }
 
 .piece-wb {
-  background-image: url('../assets/sprites/wb.png');
+  background-image: url('./assets/sprites/wb.png');
   background-size: 100%;
 }
 
 .piece-wq {
-  background-image: url('../assets/sprites/wq.png');
+  background-image: url('./assets/sprites/wq.png');
   background-size: 100%;
 }
 
 .piece-wk {
-  background-image: url('../assets/sprites/wk.png');
+  background-image: url('./assets/sprites/wk.png');
   background-size: 100%;
 }
 
 .piece-bp {
-  background-image: url('../assets/sprites/bp.png');
+  background-image: url('./assets/sprites/bp.png');
   background-size: 100%;
 }
 
 .piece-br {
-  background-image: url('../assets/sprites/br.png');
+  background-image: url('./assets/sprites/br.png');
   background-size: 100%;
 }
 
 .piece-bn {
-  background-image: url('../assets/sprites/bn.png');
+  background-image: url('./assets/sprites/bn.png');
   background-size: 100%;
 }
 
 .piece-bb {
-  background-image: url('../assets/sprites/bb.png');
+  background-image: url('./assets/sprites/bb.png');
   background-size: 100%;
 }
 
 .piece-bq {
-  background-image: url('../assets/sprites/bq.png');
+  background-image: url('./assets/sprites/bq.png');
   background-size: 100%;
 }
 
 .piece-bk {
-  background-image: url('../assets/sprites/bk.png');
+  background-image: url('./assets/sprites/bk.png');
   background-size: 100%;
 }

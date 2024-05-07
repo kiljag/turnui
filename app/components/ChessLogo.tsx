@@ -1,5 +1,8 @@
+'use client';
+
 import Image from "next/image";
-import chesslogo from '@/assets/logos/chess-logo.jpg';
+import chesslogo from '@/app/assets/logos/chess-logo.jpg';
+
 
 export default function ChessLogo() {
     return (

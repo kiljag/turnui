@@ -1,10 +1,10 @@
 
 import * as types from './types';
-import store from '../store';
+import store from '../../redux/store';
 import {
     reduceRoomInfo, reduceRoomCreated, reducePlayerInfo, reduceStartGame, reduceChessMove, reduceEndGame,
     reduceError, reduceClear, reduceLocalStream, reduceRemoteStream, reduceChatMessage,
-} from './slice';
+} from '../../redux/chessSlice';
 import {
     playMoveSelf, playCaptureSound,
 } from './sounds';

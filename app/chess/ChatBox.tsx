@@ -1,27 +1,21 @@
-import { ChatMessage, ChessState } from "@/lib/chess/slice";
+'use client';
+
+import { ChatMessage, ChessState, selectChatMessages, selectRoomCreated } from "@/app/redux/chessSlice";
 import { useState } from "react";
 import { connect } from "react-redux";
-import app from "@/lib/chess/app";
+import app from "@/app/lib/chess/app";
 import Image from "next/image";
+import { useSelector } from "react-redux";
 
-import whitePawn from '@/assets/sprites/wp.png';
-import blackPawn from '@/assets/sprites/bp.png';
+import whitePawn from '@/app/assets/sprites/wp.png';
+import blackPawn from '@/app/assets/sprites/bp.png';
+import { useAppSelector } from "../redux/hooks";
 
-interface ChatBoxProps {
-    roomCreated: boolean,
-    chatMessages: ChatMessage[],
-}
-
-const mapStateToProps = function (state: ChessState) {
-    return {
-        roomCreated: state.roomCreated,
-        chatMessages: state.chatMessages,
-    }
-}
-
-function ChatBox(props: ChatBoxProps) {
+export default function ChatBox() {
 
     const [message, setMessage] = useState<string>("");
+    const roomCreated = useAppSelector(selectRoomCreated);
+    const chatMessages = useAppSelector(selectChatMessages);
 
     function sendMessage() {
         if (message !== undefined && message !== "") {
@@ -44,15 +38,15 @@ function ChatBox(props: ChatBoxProps) {
     }
 
     let children: any[] = [];
-    for (let i = props.chatMessages.length - 1; i >= 0; i--) {
+    for (let i = chatMessages.length - 1; i >= 0; i--) {
         children.push(
-            <div key={props.chatMessages[i].chatId}
+            <div key={chatMessages[i].chatId}
                 className="flex flex-row items-center mb-2 p-2 bg-gray-800 rounded-xl">
                 <div className="h-10 w-10 shrink-0">
-                    <Image src={app.userId == props.chatMessages[i].userId ? whitePawn : blackPawn} alt="uer-avatar" />
+                    <Image src={app.userId == chatMessages[i].userId ? whitePawn : blackPawn} alt="uer-avatar" />
                 </div>
                 <div className="text-base text-white">
-                    {props.chatMessages[i].message}
+                    {chatMessages[i].message}
                 </div>
             </div>
         );
@@ -64,7 +58,7 @@ function ChatBox(props: ChatBoxProps) {
                 <div className="chat-messages flex flex-col-reverse overflow-auto scrollbar-hide">
                     {children}
                 </div>
-                {props.roomCreated ? (
+                {roomCreated ? (
                     <div className="">
                         <div className="flex">
                             <div className="h-12 w-10/12 border border-gray-50">
@@ -89,5 +83,3 @@ function ChatBox(props: ChatBoxProps) {
         </div >
     )
 }
-
-export default connect(mapStateToProps)(ChatBox);

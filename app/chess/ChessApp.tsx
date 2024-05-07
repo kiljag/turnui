@@ -2,8 +2,8 @@
 
 import Board from './Board';
 import { Provider } from 'react-redux';
-import store from '@/lib/store';
-import app from '@/lib/chess/app';
+import {store} from '../redux/store';
+import app from '../lib/chess/app';
 import VideoBar from './VideoBar';
 import { useEffect } from 'react';
 import MovesArea from './MovesArea';

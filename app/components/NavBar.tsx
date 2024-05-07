@@ -1,3 +1,4 @@
+'use client';
 
 interface NavBarProps {
     title: string,
